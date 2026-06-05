@@ -1,4 +1,5 @@
 export interface LeaderboardEntryDto {
+  userId: string;
   rank: number;
   displayName: string;
   totalPoints: number;

@@ -1,13 +1,16 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { MatTableModule } from '@angular/material/table';
 import { MatCardModule } from '@angular/material/card';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { DatePipe } from '@angular/common';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { LeaderboardService } from '../../../core/services/leaderboard.service';
 import { AuthService } from '../../../core/auth/auth.service';
-import { LeaderboardEntryDto, UserHistoryItemDto } from '../../../core/models';
+import { LeaderboardEntryDto } from '../../../core/models';
+import {
+  UserHistoryDialogComponent,
+  HistoryDialogData,
+} from '../user-history-dialog/user-history-dialog.component';
 
 @Component({
   selector: 'app-leaderboard-page',
@@ -15,137 +18,261 @@ import { LeaderboardEntryDto, UserHistoryItemDto } from '../../../core/models';
   imports: [
     MatTableModule,
     MatCardModule,
-    MatProgressSpinnerModule,
     MatButtonModule,
     MatIconModule,
-    DatePipe,
+    MatDialogModule,
   ],
   template: `
-    <h2>Leaderboard</h2>
+    <div class="page-header">
+      <h2>Leaderboard</h2>
+      <p class="subtitle">Rankings by total points. Exact score predictions earn bonus points.</p>
+    </div>
 
     @if (loading()) {
-      <div class="center"><mat-spinner /></div>
+      <mat-card class="table-card">
+        <div class="skeleton-header">
+          @for (col of skeletonCols; track col) {
+            <div class="skeleton-cell" [style.width]="col"></div>
+          }
+        </div>
+        @for (row of skeletonRows; track row) {
+          <div class="skeleton-row">
+            <div class="skeleton-bar rank-bar"></div>
+            <div class="skeleton-bar name-bar"></div>
+            <div class="skeleton-bar pts-bar"></div>
+            <div class="skeleton-bar exact-bar"></div>
+            <div class="skeleton-bar action-bar"></div>
+          </div>
+        }
+      </mat-card>
     } @else if (error()) {
-      <p class="error">{{ error() }}</p>
+      <div class="state-box error-box">
+        <mat-icon>error_outline</mat-icon>
+        <p>{{ error() }}</p>
+        <button mat-stroked-button (click)="reload()">Retry</button>
+      </div>
+    } @else if (entries().length === 0) {
+      <div class="state-box empty-box">
+        <mat-icon>emoji_events</mat-icon>
+        <p>No predictions have been made yet.</p>
+        <p class="hint">Be the first to submit your predictions!</p>
+      </div>
     } @else {
-      <mat-card>
-        <table mat-table [dataSource]="entries()" class="full-width">
+      <mat-card class="table-card">
+        <table mat-table [dataSource]="entries()" class="leaderboard-table">
+
           <ng-container matColumnDef="rank">
-            <th mat-header-cell *matHeaderCellDef>#</th>
-            <td mat-cell *matCellDef="let row">{{ row.rank }}</td>
+            <th mat-header-cell *matHeaderCellDef class="rank-col">#</th>
+            <td mat-cell *matCellDef="let row" class="rank-col">
+              @if (row.rank === 1) {
+                <span class="medal gold" title="1st place">🥇</span>
+              } @else if (row.rank === 2) {
+                <span class="medal silver" title="2nd place">🥈</span>
+              } @else if (row.rank === 3) {
+                <span class="medal bronze" title="3rd place">🥉</span>
+              } @else {
+                <span class="rank-num">{{ row.rank }}</span>
+              }
+            </td>
           </ng-container>
+
           <ng-container matColumnDef="displayName">
             <th mat-header-cell *matHeaderCellDef>Player</th>
-            <td mat-cell *matCellDef="let row">{{ row.displayName }}</td>
+            <td mat-cell *matCellDef="let row">
+              <span class="player-name">{{ row.displayName }}</span>
+              @if (row.displayName === currentUserName()) {
+                <span class="you-badge">You</span>
+              }
+            </td>
           </ng-container>
+
           <ng-container matColumnDef="totalPoints">
-            <th mat-header-cell *matHeaderCellDef>Points</th>
-            <td mat-cell *matCellDef="let row">{{ row.totalPoints }}</td>
+            <th mat-header-cell *matHeaderCellDef class="num-col">Points</th>
+            <td mat-cell *matCellDef="let row" class="num-col points-val">{{ row.totalPoints }}</td>
           </ng-container>
+
           <ng-container matColumnDef="exactHits">
-            <th mat-header-cell *matHeaderCellDef>Exact</th>
-            <td mat-cell *matCellDef="let row">{{ row.exactHits }}</td>
+            <th mat-header-cell *matHeaderCellDef class="num-col">Exact</th>
+            <td mat-cell *matCellDef="let row" class="num-col">{{ row.exactHits }}</td>
           </ng-container>
+
           <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef></th>
             <td mat-cell *matCellDef="let row">
-              <button mat-icon-button (click)="loadHistory(row)">
-                <mat-icon>history</mat-icon>
+              <button mat-icon-button
+                class="history-btn"
+                title="View predictions"
+                (click)="openHistory($event, row)">
+                <mat-icon>bar_chart</mat-icon>
               </button>
             </td>
           </ng-container>
 
           <tr mat-header-row *matHeaderRowDef="columns"></tr>
           <tr mat-row *matRowDef="let row; columns: columns"
-            [class.current-user-row]="row.displayName === currentUserName()">
+            class="data-row"
+            [class.current-user-row]="row.displayName === currentUserName()"
+            [class.top-row]="row.rank <= 3"
+            (click)="openHistory($event, row)">
           </tr>
         </table>
       </mat-card>
 
-      @if (selectedUser()) {
-        <h3 class="history-title">{{ selectedUser() }}'s Predictions</h3>
-        @if (historyLoading()) {
-          <div class="center"><mat-spinner /></div>
-        } @else if (historyError()) {
-          <p class="error">{{ historyError() }}</p>
-        } @else {
-          <mat-card>
-            <table mat-table [dataSource]="history()" class="full-width">
-              <ng-container matColumnDef="match">
-                <th mat-header-cell *matHeaderCellDef>Match</th>
-                <td mat-cell *matCellDef="let h">{{ h.homeTeam }} vs {{ h.awayTeam }}</td>
-              </ng-container>
-              <ng-container matColumnDef="prediction">
-                <th mat-header-cell *matHeaderCellDef>Prediction</th>
-                <td mat-cell *matCellDef="let h">{{ h.predictedHomeGoals }} – {{ h.predictedAwayGoals }}</td>
-              </ng-container>
-              <ng-container matColumnDef="result">
-                <th mat-header-cell *matHeaderCellDef>Result</th>
-                <td mat-cell *matCellDef="let h">
-                  @if (h.isFinished) {
-                    {{ h.actualHomeGoals }} – {{ h.actualAwayGoals }}
-                  } @else {
-                    —
-                  }
-                </td>
-              </ng-container>
-              <ng-container matColumnDef="points">
-                <th mat-header-cell *matHeaderCellDef>Pts</th>
-                <td mat-cell *matCellDef="let h">{{ h.pointsAwarded ?? '—' }}</td>
-              </ng-container>
-
-              <tr mat-header-row *matHeaderRowDef="historyColumns"></tr>
-              <tr mat-row *matRowDef="let row; columns: historyColumns"></tr>
-            </table>
-          </mat-card>
-        }
-      }
+      <p class="table-footer">{{ entries().length }} participant{{ entries().length !== 1 ? 's' : '' }} · Click any row to view predictions</p>
     }
   `,
   styles: [`
-    h2 { margin-bottom: 16px; }
-    .full-width { width: 100%; }
-    .center { display: flex; justify-content: center; padding: 40px; }
-    .error { color: red; }
-    .current-user-row { background: #e8f4fd; font-weight: 600; }
-    .history-title { margin: 24px 0 12px; }
+    .page-header { margin-bottom: 24px; }
+    .page-header h2 { margin: 0 0 4px; font-size: 28px; font-weight: 700; }
+    .subtitle { margin: 0; color: #666; font-size: 14px; }
+
+    .table-card { padding: 0; overflow: hidden; }
+
+    .leaderboard-table { width: 100%; }
+
+    .rank-col { width: 56px; text-align: center; }
+    .num-col { width: 80px; text-align: center; }
+
+    .medal { font-size: 22px; line-height: 1; }
+    .rank-num { color: #666; font-size: 15px; font-weight: 500; }
+
+    .player-name { font-weight: 500; }
+    .you-badge {
+      display: inline-block;
+      margin-left: 8px;
+      padding: 1px 8px;
+      background: #3f51b5;
+      color: #fff;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 600;
+      vertical-align: middle;
+    }
+
+    .points-val { font-weight: 700; font-size: 16px; color: #3f51b5; }
+
+    .data-row {
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .data-row:hover { background: #f5f5f5; }
+    .current-user-row { background: #e8eaf6 !important; }
+    .current-user-row:hover { background: #dde1f5 !important; }
+    .top-row td:first-child { border-left: 3px solid #3f51b5; }
+
+    .history-btn { color: #9e9e9e; }
+    .history-btn:hover { color: #3f51b5; }
+
+    /* Skeleton loading */
+    .skeleton-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 24px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    .skeleton-cell {
+      height: 14px;
+      border-radius: 4px;
+      background: #e0e0e0;
+    }
+    .skeleton-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 24px;
+      border-bottom: 1px solid #f5f5f5;
+    }
+    .skeleton-bar {
+      height: 16px;
+      border-radius: 4px;
+      background: linear-gradient(90deg, #eeeeee 25%, #e0e0e0 50%, #eeeeee 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite;
+    }
+    .rank-bar { width: 28px; flex-shrink: 0; }
+    .name-bar { width: 140px; }
+    .pts-bar { width: 60px; }
+    .exact-bar { width: 50px; }
+    .action-bar { width: 36px; border-radius: 50%; }
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* State boxes */
+    .state-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      padding: 64px 24px;
+      text-align: center;
+    }
+    .state-box mat-icon {
+      font-size: 56px;
+      width: 56px;
+      height: 56px;
+    }
+    .state-box p { margin: 0; }
+    .error-box { color: #c62828; }
+    .error-box mat-icon { color: #c62828; }
+    .empty-box { color: #757575; }
+    .empty-box mat-icon { color: #bdbdbd; }
+    .hint { font-size: 13px; color: #aaa !important; }
+
+    .table-footer {
+      margin: 12px 0 0;
+      text-align: right;
+      font-size: 13px;
+      color: #aaa;
+    }
   `],
 })
 export class LeaderboardPageComponent implements OnInit {
   private svc = inject(LeaderboardService);
   private auth = inject(AuthService);
+  private dialog = inject(MatDialog);
 
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
   readonly entries = signal<LeaderboardEntryDto[]>([]);
 
-  readonly selectedUser = signal<string | null>(null);
-  readonly selectedUserId = signal<string | null>(null);
-  readonly historyLoading = signal(false);
-  readonly historyError = signal<string | null>(null);
-  readonly history = signal<UserHistoryItemDto[]>([]);
-
   readonly currentUserName = computed(() => this.auth.user()?.displayName ?? '');
 
   readonly columns = ['rank', 'displayName', 'totalPoints', 'exactHits', 'actions'];
-  readonly historyColumns = ['match', 'prediction', 'result', 'points'];
+  readonly skeletonRows = [1, 2, 3, 4, 5, 6, 7, 8];
+  readonly skeletonCols = ['40px', '160px', '70px', '60px', '40px'];
 
   ngOnInit(): void {
-    this.svc.getLeaderboard().subscribe({
-      next: data => { this.entries.set(data); this.loading.set(false); },
-      error: () => { this.error.set('Failed to load leaderboard.'); this.loading.set(false); },
+    this.fetchLeaderboard();
+  }
+
+  reload(): void {
+    this.loading.set(true);
+    this.error.set(null);
+    this.fetchLeaderboard();
+  }
+
+  openHistory(event: Event, entry: LeaderboardEntryDto): void {
+    event.stopPropagation();
+    const data: HistoryDialogData = {
+      userId: entry.userId,
+      displayName: entry.displayName,
+    };
+    this.dialog.open(UserHistoryDialogComponent, {
+      data,
+      width: '620px',
+      maxWidth: '95vw',
+      maxHeight: '90vh',
+      autoFocus: false,
     });
   }
 
-  loadHistory(entry: LeaderboardEntryDto & { userId?: string }): void {
-    const userId = entry.userId ?? entry.displayName;
-    this.selectedUser.set(entry.displayName);
-    this.historyLoading.set(true);
-    this.historyError.set(null);
-
-    this.svc.getUserHistory(userId).subscribe({
-      next: data => { this.history.set(data); this.historyLoading.set(false); },
-      error: () => { this.historyError.set('History not found.'); this.historyLoading.set(false); },
+  private fetchLeaderboard(): void {
+    this.svc.getLeaderboard().subscribe({
+      next: data => { this.entries.set(data); this.loading.set(false); },
+      error: () => { this.error.set('Failed to load leaderboard. Please try again.'); this.loading.set(false); },
     });
   }
 }
