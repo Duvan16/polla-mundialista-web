@@ -3,6 +3,8 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatDividerModule } from '@angular/material/divider';
 import { AuthService } from '../../../core/auth/auth.service';
 
 @Component({
@@ -15,6 +17,8 @@ import { AuthService } from '../../../core/auth/auth.service';
     MatToolbarModule,
     MatButtonModule,
     MatIconModule,
+    MatMenuModule,
+    MatDividerModule,
   ],
   template: `
     <mat-toolbar color="primary">
@@ -26,11 +30,21 @@ import { AuthService } from '../../../core/auth/auth.service';
         <a mat-button routerLink="/admin" routerLinkActive="active-link">Admin</a>
       }
       @if (user()) {
-        <span class="user-name">{{ user()!.displayName }}</span>
+        <button mat-icon-button [matMenuTriggerFor]="userMenu" class="avatar-btn" aria-label="User menu">
+          <span class="avatar">{{ initials() }}</span>
+        </button>
+        <mat-menu #userMenu="matMenu" xPosition="before">
+          <div class="menu-header" mat-menu-item disabled>
+            <span class="menu-name">{{ user()!.displayName }}</span>
+            <span class="menu-email">{{ user()!.email }}</span>
+          </div>
+          <mat-divider />
+          <button mat-menu-item (click)="logout()">
+            <mat-icon>logout</mat-icon>
+            <span>Sign out</span>
+          </button>
+        </mat-menu>
       }
-      <button mat-button (click)="logout()">
-        <mat-icon>logout</mat-icon> Logout
-      </button>
     </mat-toolbar>
     <main class="main-content">
       <router-outlet />
@@ -41,13 +55,27 @@ import { AuthService } from '../../../core/auth/auth.service';
     .app-title { font-weight: 600; letter-spacing: 0.5px; }
     .main-content { padding: 24px; max-width: 1100px; margin: 0 auto; }
     .active-link { background: rgba(255,255,255,0.15); border-radius: 4px; }
-    .user-name { font-size: 14px; opacity: 0.85; margin-right: 8px; }
+    .avatar-btn { margin-left: 8px; }
+    .avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: rgba(255,255,255,0.25);
+      color: #fff; font-size: 13px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .menu-header { display: flex; flex-direction: column; padding: 12px 16px; cursor: default; line-height: 1.4; }
+    .menu-name { font-weight: 600; font-size: 14px; }
+    .menu-email { font-size: 12px; color: #888; margin-top: 2px; }
   `],
 })
 export class ShellComponent {
   private auth = inject(AuthService);
   readonly isAdmin = this.auth.isAdmin;
   readonly user = this.auth.user;
+
+  readonly initials = computed(() => {
+    const name = this.user()?.displayName ?? '';
+    return name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+  });
 
   logout(): void {
     this.auth.logout();

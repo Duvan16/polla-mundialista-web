@@ -47,7 +47,7 @@ type GoalForm = FormGroup<{
         @for (group of groupNames(); track group) {
           <section class="group-section">
             <div class="group-header">
-              <span class="group-label">Group {{ group }}</span>
+              <span class="group-label">{{ group }}</span>
             </div>
             @for (match of groupedMatches()[group]; track match.matchId) {
               <mat-card class="match-card" [class.is-finished]="match.isFinished">
