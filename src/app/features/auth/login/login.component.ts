@@ -7,6 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthService } from '../../../core/auth/auth.service';
+import { extractApiError } from '../../../core/utils/api-error';
 
 @Component({
   selector: 'app-login',
@@ -34,6 +35,8 @@ import { AuthService } from '../../../core/auth/auth.service';
               <input matInput formControlName="email" type="email" autocomplete="email" />
               @if (form.get('email')?.hasError('required')) {
                 <mat-error>Email is required</mat-error>
+              } @else if (form.get('email')?.hasError('email')) {
+                <mat-error>Enter a valid email address</mat-error>
               }
             </mat-form-field>
 
@@ -92,6 +95,7 @@ export class LoginComponent {
   });
 
   submit(): void {
+    this.form.markAllAsTouched();
     if (this.form.invalid) return;
     this.loading.set(true);
     this.error.set(null);
@@ -99,7 +103,7 @@ export class LoginComponent {
     this.auth.login(this.form.getRawValue()).subscribe({
       next: () => this.router.navigate(['/matches']),
       error: (err) => {
-        this.error.set(err?.error?.error ?? 'Login failed. Please try again.');
+        this.error.set(extractApiError(err, 'Login failed. Please try again.'));
         this.loading.set(false);
       },
     });

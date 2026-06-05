@@ -7,6 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthService } from '../../../core/auth/auth.service';
+import { extractApiError } from '../../../core/utils/api-error';
 
 @Component({
   selector: 'app-register',
@@ -48,7 +49,9 @@ import { AuthService } from '../../../core/auth/auth.service';
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>Password</mat-label>
               <input matInput formControlName="password" type="password" autocomplete="new-password" />
-              @if (form.get('password')?.hasError('minlength')) {
+              @if (form.get('password')?.hasError('required')) {
+                <mat-error>Password is required</mat-error>
+              } @else if (form.get('password')?.hasError('minlength')) {
                 <mat-error>Password must be at least 6 characters</mat-error>
               }
             </mat-form-field>
@@ -101,6 +104,7 @@ export class RegisterComponent {
   });
 
   submit(): void {
+    this.form.markAllAsTouched();
     if (this.form.invalid) return;
     this.loading.set(true);
     this.error.set(null);
@@ -108,7 +112,7 @@ export class RegisterComponent {
     this.auth.register(this.form.getRawValue()).subscribe({
       next: () => this.router.navigate(['/matches']),
       error: (err) => {
-        this.error.set(err?.error?.error ?? 'Registration failed. Please try again.');
+        this.error.set(extractApiError(err, 'Registration failed. Please try again.'));
         this.loading.set(false);
       },
     });

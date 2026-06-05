@@ -25,6 +25,9 @@ import { AuthService } from '../../../core/auth/auth.service';
       @if (isAdmin()) {
         <a mat-button routerLink="/admin" routerLinkActive="active-link">Admin</a>
       }
+      @if (user()) {
+        <span class="user-name">{{ user()!.displayName }}</span>
+      }
       <button mat-button (click)="logout()">
         <mat-icon>logout</mat-icon> Logout
       </button>
@@ -38,11 +41,13 @@ import { AuthService } from '../../../core/auth/auth.service';
     .app-title { font-weight: 600; letter-spacing: 0.5px; }
     .main-content { padding: 24px; max-width: 1100px; margin: 0 auto; }
     .active-link { background: rgba(255,255,255,0.15); border-radius: 4px; }
+    .user-name { font-size: 14px; opacity: 0.85; margin-right: 8px; }
   `],
 })
 export class ShellComponent {
   private auth = inject(AuthService);
   readonly isAdmin = this.auth.isAdmin;
+  readonly user = this.auth.user;
 
   logout(): void {
     this.auth.logout();
