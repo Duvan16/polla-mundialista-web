@@ -99,12 +99,14 @@ import {
           <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef></th>
             <td mat-cell *matCellDef="let row">
-              <button mat-icon-button
-                class="history-btn"
-                title="View predictions"
-                (click)="openHistory($event, row)">
-                <mat-icon>bar_chart</mat-icon>
-              </button>
+              @if (row.userId === currentUserId()) {
+                <button mat-icon-button
+                  class="history-btn"
+                  title="View my predictions"
+                  (click)="openHistory($event, row)">
+                  <mat-icon>bar_chart</mat-icon>
+                </button>
+              }
             </td>
           </ng-container>
 
@@ -113,12 +115,13 @@ import {
             class="data-row"
             [class.current-user-row]="row.displayName === currentUserName()"
             [class.top-row]="row.rank <= 3"
+            [class.clickable-row]="row.userId === currentUserId()"
             (click)="openHistory($event, row)">
           </tr>
         </table>
       </mat-card>
 
-      <p class="table-footer">{{ entries().length }} participant{{ entries().length !== 1 ? 's' : '' }} · Click any row to view predictions</p>
+      <p class="table-footer">{{ entries().length }} participant{{ entries().length !== 1 ? 's' : '' }} · Click your own row to view your predictions</p>
     }
   `,
   styles: [`
@@ -152,10 +155,11 @@ import {
     .points-val { font-weight: 700; font-size: 16px; color: #3f51b5; }
 
     .data-row {
-      cursor: pointer;
+      cursor: default;
       transition: background 0.15s;
     }
     .data-row:hover { background: #f5f5f5; }
+    .clickable-row { cursor: pointer; }
     .current-user-row { background: #e8eaf6 !important; }
     .current-user-row:hover { background: #dde1f5 !important; }
     .top-row td:first-child { border-left: 3px solid #3f51b5; }
@@ -239,6 +243,7 @@ export class LeaderboardPageComponent implements OnInit {
   readonly entries = signal<LeaderboardEntryDto[]>([]);
 
   readonly currentUserName = computed(() => this.auth.user()?.displayName ?? '');
+  readonly currentUserId = computed(() => this.auth.user()?.userId ?? '');
 
   readonly columns = ['rank', 'displayName', 'totalPoints', 'exactHits', 'actions'];
   readonly skeletonRows = [1, 2, 3, 4, 5, 6, 7, 8];
@@ -255,6 +260,7 @@ export class LeaderboardPageComponent implements OnInit {
   }
 
   openHistory(event: Event, entry: LeaderboardEntryDto): void {
+    if (entry.userId !== this.currentUserId()) return;
     event.stopPropagation();
     const data: HistoryDialogData = {
       userId: entry.userId,

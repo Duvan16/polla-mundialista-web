@@ -5,5 +5,8 @@ export interface User {
   email: string;
   displayName: string;
   role: UserRole;
-  token: string;
+  accessToken: string;
+  accessTokenExpiresAt: string;
+  refreshToken: string;
+  refreshTokenExpiresAt: string;
 }

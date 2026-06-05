@@ -25,7 +25,7 @@ export class AuthService {
   readonly user = this._user.asReadonly();
   readonly isAuthenticated = computed(() => this._user() !== null);
   readonly isAdmin = computed(() => this._user()?.role === 'Admin');
-  readonly token = computed(() => this._user()?.token ?? null);
+  readonly token = computed(() => this._user()?.accessToken ?? null);
 
   constructor(private http: HttpClient, private router: Router) {}
 
@@ -41,10 +41,20 @@ export class AuthService {
     );
   }
 
+  refresh(refreshToken: string): Observable<User> {
+    return this.http.post<User>(`${environment.apiUrl}/auth/refresh`, { refreshToken }).pipe(
+      tap(user => this.setUser(user))
+    );
+  }
+
   logout(): void {
+    const refreshToken = this._user()?.refreshToken;
     this._user.set(null);
     localStorage.removeItem(STORAGE_KEY);
     this.router.navigate(['/auth/login']);
+    if (refreshToken) {
+      this.http.post(`${environment.apiUrl}/auth/logout`, { refreshToken }).subscribe({ error: () => {} });
+    }
   }
 
   private setUser(user: User): void {
