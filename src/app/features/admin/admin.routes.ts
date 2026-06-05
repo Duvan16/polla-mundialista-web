@@ -9,8 +9,8 @@ export const ADMIN_ROUTES: Routes = [
       {
         path: '',
         loadComponent: () =>
-          import('./admin-results/admin-results.component').then(
-            m => m.AdminResultsComponent
+          import('./admin-matches/admin-matches.component').then(
+            m => m.AdminMatchesComponent
           ),
       },
     ],
