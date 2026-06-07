@@ -6,6 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../../core/auth/auth.service';
 import { extractApiError } from '../../../core/utils/api-error';
 
@@ -20,31 +21,32 @@ import { extractApiError } from '../../../core/utils/api-error';
     MatInputModule,
     MatButtonModule,
     MatProgressSpinnerModule,
+    TranslateModule,
   ],
   template: `
     <div class="auth-container">
       <mat-card class="auth-card">
         <mat-card-header>
-          <mat-card-title>Sign In</mat-card-title>
-          <mat-card-subtitle>Polla Mundialista</mat-card-subtitle>
+          <mat-card-title>{{ 'auth.login.title' | translate }}</mat-card-title>
+          <mat-card-subtitle>{{ 'auth.login.subtitle' | translate }}</mat-card-subtitle>
         </mat-card-header>
         <mat-card-content>
           <form [formGroup]="form" (ngSubmit)="submit()">
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Email</mat-label>
+              <mat-label>{{ 'auth.login.emailLabel' | translate }}</mat-label>
               <input matInput formControlName="email" type="email" autocomplete="email" />
               @if (form.get('email')?.hasError('required')) {
-                <mat-error>Email is required</mat-error>
+                <mat-error>{{ 'auth.validation.emailRequired' | translate }}</mat-error>
               } @else if (form.get('email')?.hasError('email')) {
-                <mat-error>Enter a valid email address</mat-error>
+                <mat-error>{{ 'auth.validation.emailInvalid' | translate }}</mat-error>
               }
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Password</mat-label>
+              <mat-label>{{ 'auth.login.passwordLabel' | translate }}</mat-label>
               <input matInput formControlName="password" type="password" autocomplete="current-password" />
               @if (form.get('password')?.hasError('required')) {
-                <mat-error>Password is required</mat-error>
+                <mat-error>{{ 'auth.validation.passwordRequired' | translate }}</mat-error>
               }
             </mat-form-field>
 
@@ -61,13 +63,13 @@ import { extractApiError } from '../../../core/utils/api-error';
               @if (loading()) {
                 <mat-spinner diameter="20" />
               } @else {
-                Sign In
+                {{ 'auth.login.submitBtn' | translate }}
               }
             </button>
           </form>
         </mat-card-content>
         <mat-card-actions>
-          <a routerLink="/auth/register">Don't have an account? Register</a>
+          <a routerLink="/auth/register">{{ 'auth.login.registerLink' | translate }}</a>
         </mat-card-actions>
       </mat-card>
     </div>
@@ -81,11 +83,11 @@ import { extractApiError } from '../../../core/utils/api-error';
     mat-card-actions { padding: 8px 16px 16px; }
   `],
 })
-/** Presentational + smart — email/password login form. Navigates to /matches on success. */
 export class LoginComponent {
   private fb = inject(FormBuilder);
   private auth = inject(AuthService);
   private router = inject(Router);
+  private translate = inject(TranslateService);
 
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
@@ -104,7 +106,7 @@ export class LoginComponent {
     this.auth.login(this.form.getRawValue()).subscribe({
       next: () => this.router.navigate(['/matches']),
       error: (err) => {
-        this.error.set(extractApiError(err, 'Login failed. Please try again.'));
+        this.error.set(extractApiError(err, this.translate.instant('auth.login.errorFallback')));
         this.loading.set(false);
       },
     });

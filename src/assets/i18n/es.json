@@ -1,0 +1,122 @@
+{
+  "common": {
+    "appTitle": "Polla Mundialista",
+    "retry": "Reintentar",
+    "close": "Cerrar",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "dismiss": "Cerrar",
+    "vs": "vs",
+    "pts": "pts",
+    "loading": "Cargando…",
+    "langEs": "ES",
+    "langEn": "EN"
+  },
+  "nav": {
+    "matches": "Partidos",
+    "leaderboard": "Tabla de posiciones",
+    "admin": "Admin",
+    "userMenuLabel": "Menú de usuario",
+    "signOut": "Cerrar sesión"
+  },
+  "auth": {
+    "login": {
+      "title": "Iniciar sesión",
+      "subtitle": "Polla Mundialista",
+      "emailLabel": "Correo electrónico",
+      "passwordLabel": "Contraseña",
+      "submitBtn": "Iniciar sesión",
+      "registerLink": "¿No tienes cuenta? Regístrate",
+      "errorFallback": "Error al iniciar sesión. Inténtalo de nuevo."
+    },
+    "register": {
+      "title": "Crear cuenta",
+      "subtitle": "Polla Mundialista",
+      "displayNameLabel": "Nombre de usuario",
+      "emailLabel": "Correo electrónico",
+      "passwordLabel": "Contraseña",
+      "submitBtn": "Registrarse",
+      "loginLink": "¿Ya tienes cuenta? Inicia sesión",
+      "errorFallback": "Error al registrarse. Inténtalo de nuevo."
+    },
+    "validation": {
+      "emailRequired": "El correo electrónico es obligatorio",
+      "emailInvalid": "Ingresa un correo electrónico válido",
+      "passwordRequired": "La contraseña es obligatoria",
+      "passwordMinLength": "La contraseña debe tener al menos 6 caracteres",
+      "displayNameRequired": "El nombre de usuario es obligatorio"
+    },
+    "rateLimit": "Demasiados intentos, espera un momento"
+  },
+  "matches": {
+    "title": "Mis predicciones",
+    "empty": "No hay partidos disponibles.",
+    "errorLoad": "Error al cargar los partidos.",
+    "finished": "Finalizado",
+    "yourPrediction": "Tu predicción",
+    "result": "Resultado",
+    "homeLabel": "Local",
+    "awayLabel": "Visitante",
+    "saveBtn": "Guardar",
+    "predictionSaved": "¡Predicción guardada!",
+    "predictionError": "Error al guardar la predicción."
+  },
+  "admin": {
+    "title": "Resultados de partidos",
+    "empty": "No se encontraron partidos.",
+    "errorLoad": "Error al cargar los partidos.",
+    "finished": "Finalizado",
+    "finalScore": "Marcador final",
+    "homeGoals": "Goles local",
+    "awayGoals": "Goles visitante",
+    "homeLabel": "Local",
+    "awayLabel": "Visitante",
+    "updateResult": "Actualizar resultado",
+    "saveResult": "Guardar resultado",
+    "resultSaved": "¡Resultado guardado!",
+    "resultError": "Error al guardar el resultado.",
+    "goalsRequired": "Ambos valores de goles son obligatorios.",
+    "retry": "Reintentar",
+    "confirm": {
+      "title": "Confirmar resultado",
+      "warning": "Esta acción no se puede deshacer una vez confirmada.",
+      "cancel": "Cancelar",
+      "save": "Guardar resultado"
+    }
+  },
+  "leaderboard": {
+    "title": "Tabla de posiciones",
+    "subtitle": "Clasificación por puntos totales. Las predicciones exactas otorgan puntos adicionales.",
+    "rankCol": "#",
+    "playerCol": "Jugador",
+    "pointsCol": "Puntos",
+    "exactCol": "Exactos",
+    "you": "Tú",
+    "viewHistory": "Ver mis predicciones",
+    "empty": "Aún no se han hecho predicciones.",
+    "emptyHint": "¡Sé el primero en enviar tus predicciones!",
+    "retry": "Reintentar",
+    "errorLoad": "Error al cargar la tabla. Inténtalo de nuevo.",
+    "footerOne": "{{count}} participante · Haz clic en tu fila para ver tus predicciones",
+    "footerMany": "{{count}} participantes · Haz clic en tu fila para ver tus predicciones",
+    "medal": {
+      "first": "1er lugar",
+      "second": "2do lugar",
+      "third": "3er lugar"
+    },
+    "history": {
+      "titleSuffix": " · Predicciones",
+      "loadingText": "Cargando predicciones…",
+      "empty": "Aún no hay predicciones enviadas.",
+      "matchCol": "Partido",
+      "predictionCol": "Predicción",
+      "resultCol": "Resultado",
+      "ptsCol": "Pts",
+      "pending": "Pendiente",
+      "totalPoints": "Puntos totales:",
+      "exactHits": "Aciertos exactos:",
+      "close": "Cerrar",
+      "errorLoad": "No se pudo cargar el historial de predicciones."
+    }
+  }
+}

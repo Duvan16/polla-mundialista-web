@@ -6,10 +6,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { DatePipe } from '@angular/common';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { LeaderboardService } from '../../../core/services/leaderboard.service';
 import { UserHistoryItemDto } from '../../../core/models';
 
-/** Data injected via MAT_DIALOG_DATA when opening the history dialog. */
 export interface HistoryDialogData {
   userId: string;
   displayName: string;
@@ -26,18 +26,19 @@ export interface HistoryDialogData {
     MatIconModule,
     MatChipsModule,
     DatePipe,
+    TranslateModule,
   ],
   template: `
     <h2 mat-dialog-title>
       <mat-icon class="title-icon">person</mat-icon>
-      {{ data.displayName }}'s Predictions
+      {{ data.displayName }}{{ 'leaderboard.history.titleSuffix' | translate }}
     </h2>
 
     <mat-dialog-content>
       @if (loading()) {
         <div class="center">
           <mat-spinner diameter="48" />
-          <p class="loading-text">Loading predictions…</p>
+          <p class="loading-text">{{ 'leaderboard.history.loadingText' | translate }}</p>
         </div>
       } @else if (error()) {
         <div class="error-state">
@@ -47,12 +48,12 @@ export interface HistoryDialogData {
       } @else if (history().length === 0) {
         <div class="empty-state">
           <mat-icon>sports_soccer</mat-icon>
-          <p>No predictions submitted yet.</p>
+          <p>{{ 'leaderboard.history.empty' | translate }}</p>
         </div>
       } @else {
         <table mat-table [dataSource]="history()" class="history-table">
           <ng-container matColumnDef="match">
-            <th mat-header-cell *matHeaderCellDef>Match</th>
+            <th mat-header-cell *matHeaderCellDef>{{ 'leaderboard.history.matchCol' | translate }}</th>
             <td mat-cell *matCellDef="let h">
               <span class="match-label">{{ h.homeTeam }} vs {{ h.awayTeam }}</span>
               <span class="match-date">{{ h.matchDate | date:'MMM d' }}</span>
@@ -60,25 +61,25 @@ export interface HistoryDialogData {
           </ng-container>
 
           <ng-container matColumnDef="prediction">
-            <th mat-header-cell *matHeaderCellDef>Prediction</th>
+            <th mat-header-cell *matHeaderCellDef>{{ 'leaderboard.history.predictionCol' | translate }}</th>
             <td mat-cell *matCellDef="let h" class="score-cell">
               {{ h.predictedHomeGoals }} – {{ h.predictedAwayGoals }}
             </td>
           </ng-container>
 
           <ng-container matColumnDef="result">
-            <th mat-header-cell *matHeaderCellDef>Result</th>
+            <th mat-header-cell *matHeaderCellDef>{{ 'leaderboard.history.resultCol' | translate }}</th>
             <td mat-cell *matCellDef="let h" class="score-cell">
               @if (h.isFinished) {
                 {{ h.actualHomeGoals }} – {{ h.actualAwayGoals }}
               } @else {
-                <span class="pending">Pending</span>
+                <span class="pending">{{ 'leaderboard.history.pending' | translate }}</span>
               }
             </td>
           </ng-container>
 
           <ng-container matColumnDef="points">
-            <th mat-header-cell *matHeaderCellDef>Pts</th>
+            <th mat-header-cell *matHeaderCellDef>{{ 'leaderboard.history.ptsCol' | translate }}</th>
             <td mat-cell *matCellDef="let h">
               @if (h.pointsAwarded != null) {
                 <span class="points-chip" [class.exact]="isExact(h)" [class.partial]="isPartial(h)">
@@ -95,16 +96,16 @@ export interface HistoryDialogData {
         </table>
 
         <div class="summary-row">
-          <span class="summary-label">Total Points:</span>
+          <span class="summary-label">{{ 'leaderboard.history.totalPoints' | translate }}</span>
           <span class="summary-value">{{ totalPoints() }}</span>
-          <span class="summary-label ml">Exact Hits:</span>
+          <span class="summary-label ml">{{ 'leaderboard.history.exactHits' | translate }}</span>
           <span class="summary-value">{{ exactHits() }}</span>
         </div>
       }
     </mat-dialog-content>
 
     <mat-dialog-actions align="end">
-      <button mat-button mat-dialog-close>Close</button>
+      <button mat-button mat-dialog-close>{{ 'leaderboard.history.close' | translate }}</button>
     </mat-dialog-actions>
   `,
   styles: [`
@@ -183,13 +184,10 @@ export interface HistoryDialogData {
     .ml { margin-left: 24px; }
   `],
 })
-/**
- * Presentational dialog that shows a user's full prediction history in a table.
- * Opened by LeaderboardPageComponent; receives userId and displayName via MAT_DIALOG_DATA.
- */
 export class UserHistoryDialogComponent implements OnInit {
   readonly data = inject<HistoryDialogData>(MAT_DIALOG_DATA);
   private svc = inject(LeaderboardService);
+  private translate = inject(TranslateService);
 
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
@@ -206,7 +204,10 @@ export class UserHistoryDialogComponent implements OnInit {
   ngOnInit(): void {
     this.svc.getUserHistory(this.data.userId).subscribe({
       next: data => { this.history.set(data); this.loading.set(false); },
-      error: () => { this.error.set('Could not load prediction history.'); this.loading.set(false); },
+      error: () => {
+        this.error.set(this.translate.instant('leaderboard.history.errorLoad'));
+        this.loading.set(false);
+      },
     });
   }
 

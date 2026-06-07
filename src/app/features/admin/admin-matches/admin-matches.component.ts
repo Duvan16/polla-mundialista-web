@@ -9,6 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDialog, MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { DatePipe } from '@angular/common';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AdminService } from '../../../core/services/admin.service';
 import { MatchWithPredictionDto } from '../../../core/models';
 import { extractApiError } from '../../../core/utils/api-error';
@@ -16,17 +17,17 @@ import { extractApiError } from '../../../core/utils/api-error';
 @Component({
   selector: 'app-confirm-result-dialog',
   standalone: true,
-  imports: [MatButtonModule, MatDialogModule],
+  imports: [MatButtonModule, MatDialogModule, TranslateModule],
   template: `
-    <h2 mat-dialog-title>Confirm Result</h2>
+    <h2 mat-dialog-title>{{ 'admin.confirm.title' | translate }}</h2>
     <mat-dialog-content>
-      <p class="teams">{{ data.homeTeam }} <span class="vs">vs</span> {{ data.awayTeam }}</p>
+      <p class="teams">{{ data.homeTeam }} <span class="vs">{{ 'common.vs' | translate }}</span> {{ data.awayTeam }}</p>
       <p class="score">{{ data.homeGoals }} &ndash; {{ data.awayGoals }}</p>
-      <p class="warning">This cannot be undone once confirmed.</p>
+      <p class="warning">{{ 'admin.confirm.warning' | translate }}</p>
     </mat-dialog-content>
     <mat-dialog-actions align="end">
-      <button mat-button mat-dialog-close>Cancel</button>
-      <button mat-flat-button color="warn" [mat-dialog-close]="true">Save Result</button>
+      <button mat-button mat-dialog-close>{{ 'admin.confirm.cancel' | translate }}</button>
+      <button mat-flat-button color="warn" [mat-dialog-close]="true">{{ 'admin.confirm.save' | translate }}</button>
     </mat-dialog-actions>
   `,
   styles: [`
@@ -36,7 +37,6 @@ import { extractApiError } from '../../../core/utils/api-error';
     .warning { font-size: 0.78rem; color: #999; margin-top: 4px; }
   `],
 })
-/** Confirmation dialog shown before saving a match result. Displays the score for admin review. */
 export class ConfirmResultDialogComponent {
   data = inject(MAT_DIALOG_DATA) as {
     homeTeam: string;
@@ -64,10 +64,11 @@ type GoalForm = FormGroup<{
     MatIconModule,
     MatDialogModule,
     DatePipe,
+    TranslateModule,
   ],
   template: `
     <div class="page-container">
-      <h2 class="page-title">Match Results</h2>
+      <h2 class="page-title">{{ 'admin.title' | translate }}</h2>
 
       @if (loading()) {
         <div class="center"><mat-spinner /></div>
@@ -75,10 +76,10 @@ type GoalForm = FormGroup<{
         <div class="error-state">
           <mat-icon>error_outline</mat-icon>
           <span>{{ error() }}</span>
-          <button mat-stroked-button (click)="loadMatches()">Retry</button>
+          <button mat-stroked-button (click)="loadMatches()">{{ 'admin.retry' | translate }}</button>
         </div>
       } @else if (matches().length === 0) {
-        <p class="empty">No matches found.</p>
+        <p class="empty">{{ 'admin.empty' | translate }}</p>
       } @else {
         @for (group of groupNames(); track group) {
           <section class="group-section">
@@ -93,7 +94,7 @@ type GoalForm = FormGroup<{
                   <div class="match-header">
                     <div class="teams">
                       <span class="team">{{ match.homeTeam }}</span>
-                      <span class="vs">vs</span>
+                      <span class="vs">{{ 'common.vs' | translate }}</span>
                       <span class="team">{{ match.awayTeam }}</span>
                     </div>
                     <div class="meta">
@@ -101,7 +102,7 @@ type GoalForm = FormGroup<{
                       @if (match.isFinished) {
                         <span class="finished-badge">
                           <mat-icon class="badge-icon">check_circle</mat-icon>
-                          Finished
+                          {{ 'admin.finished' | translate }}
                         </span>
                       }
                     </div>
@@ -110,7 +111,7 @@ type GoalForm = FormGroup<{
                   @if (match.isFinished) {
                     <div class="result-display">
                       <div class="result-score">
-                        <span class="result-label">Final Score</span>
+                        <span class="result-label">{{ 'admin.finalScore' | translate }}</span>
                         <span class="result-value">
                           {{ match.actualHomeGoals }} &ndash; {{ match.actualAwayGoals }}
                         </span>
@@ -119,12 +120,12 @@ type GoalForm = FormGroup<{
                         <form [formGroup]="matchForms[match.matchId]"
                               (ngSubmit)="confirmAndSave(match)">
                           <mat-form-field appearance="outline" class="score-field">
-                            <mat-label>Home</mat-label>
+                            <mat-label>{{ 'admin.homeLabel' | translate }}</mat-label>
                             <input matInput type="number" min="0" formControlName="home" />
                           </mat-form-field>
                           <span class="form-dash">&ndash;</span>
                           <mat-form-field appearance="outline" class="score-field">
-                            <mat-label>Away</mat-label>
+                            <mat-label>{{ 'admin.awayLabel' | translate }}</mat-label>
                             <input matInput type="number" min="0" formControlName="away" />
                           </mat-form-field>
                           <button mat-stroked-button color="warn" type="submit"
@@ -132,7 +133,7 @@ type GoalForm = FormGroup<{
                             @if (saving()[match.matchId]) {
                               <mat-spinner diameter="16" />
                             } @else {
-                              Update Result
+                              {{ 'admin.updateResult' | translate }}
                             }
                           </button>
                         </form>
@@ -149,12 +150,12 @@ type GoalForm = FormGroup<{
                       <form class="result-form" [formGroup]="matchForms[match.matchId]"
                             (ngSubmit)="confirmAndSave(match)">
                         <mat-form-field appearance="outline" class="score-field">
-                          <mat-label>Home Goals</mat-label>
+                          <mat-label>{{ 'admin.homeGoals' | translate }}</mat-label>
                           <input matInput type="number" min="0" formControlName="home" />
                         </mat-form-field>
                         <span class="form-dash">&ndash;</span>
                         <mat-form-field appearance="outline" class="score-field">
-                          <mat-label>Away Goals</mat-label>
+                          <mat-label>{{ 'admin.awayGoals' | translate }}</mat-label>
                           <input matInput type="number" min="0" formControlName="away" />
                         </mat-form-field>
                         <button mat-flat-button color="primary" type="submit"
@@ -162,7 +163,7 @@ type GoalForm = FormGroup<{
                           @if (saving()[match.matchId]) {
                             <mat-spinner diameter="18" />
                           } @else {
-                            Save Result
+                            {{ 'admin.saveResult' | translate }}
                           }
                         </button>
                       </form>
@@ -243,16 +244,12 @@ type GoalForm = FormGroup<{
     .empty { color: #aaa; padding: 24px 0; }
   `],
 })
-/**
- * Smart component — primary admin panel for recording match results.
- * Loads all matches via AdminService, groups them by groupName, and
- * lets admins enter or update scores (with a confirmation dialog before saving).
- */
 export class AdminMatchesComponent implements OnInit {
   private adminSvc = inject(AdminService);
   private fb = inject(FormBuilder);
   private dialog = inject(MatDialog);
   private snackBar = inject(MatSnackBar);
+  private translate = inject(TranslateService);
 
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
@@ -287,7 +284,7 @@ export class AdminMatchesComponent implements OnInit {
         this.loading.set(false);
       },
       error: err => {
-        this.error.set(extractApiError(err, 'Failed to load matches.'));
+        this.error.set(extractApiError(err, this.translate.instant('admin.errorLoad')));
         this.loading.set(false);
       },
     });
@@ -299,7 +296,10 @@ export class AdminMatchesComponent implements OnInit {
 
     const { home, away } = form.getRawValue();
     if (home === null || away === null) {
-      this.saveError.update(e => ({ ...e, [match.matchId]: 'Both goal values are required.' }));
+      this.saveError.update(e => ({
+        ...e,
+        [match.matchId]: this.translate.instant('admin.goalsRequired'),
+      }));
       return;
     }
 
@@ -328,13 +328,13 @@ export class AdminMatchesComponent implements OnInit {
               : m
           )
         );
-        this.snackBar.open('Result saved!', undefined, { duration: 2500 });
+        this.snackBar.open(this.translate.instant('admin.resultSaved'), undefined, { duration: 2500 });
       },
       error: err => {
         this.saving.update(s => ({ ...s, [match.matchId]: false }));
         this.saveError.update(e => ({
           ...e,
-          [match.matchId]: extractApiError(err, 'Failed to save result.'),
+          [match.matchId]: extractApiError(err, this.translate.instant('admin.resultError')),
         }));
       },
     });

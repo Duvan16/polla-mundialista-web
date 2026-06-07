@@ -2,6 +2,7 @@ import { HttpInterceptorFn, HttpErrorResponse, HttpRequest, HttpHandlerFn } from
 import { inject } from '@angular/core';
 import { BehaviorSubject, catchError, filter, switchMap, take, throwError } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../auth/auth.service';
 
 /**
@@ -21,6 +22,7 @@ function isAuthEndpoint(url: string): boolean {
 export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
   const auth = inject(AuthService);
   const snackBar = inject(MatSnackBar);
+  const translate = inject(TranslateService);
   const token = auth.token();
 
   const authReq = token && !isAuthEndpoint(req.url)
@@ -32,7 +34,7 @@ export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
       if (!(err instanceof HttpErrorResponse)) return throwError(() => err);
 
       if (err.status === 429 && isAuthEndpoint(req.url)) {
-        snackBar.open('Too many attempts, please wait a minute', 'OK', { duration: 6000 });
+        snackBar.open(translate.instant('auth.rateLimit'), translate.instant('common.dismiss'), { duration: 6000 });
         return throwError(() => err);
       }
 
