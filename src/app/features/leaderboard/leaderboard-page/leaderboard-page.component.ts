@@ -4,6 +4,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { LeaderboardService } from '../../../core/services/leaderboard.service';
 import { AuthService } from '../../../core/auth/auth.service';
 import { LeaderboardEntryDto } from '../../../core/models';
@@ -21,11 +22,12 @@ import {
     MatButtonModule,
     MatIconModule,
     MatDialogModule,
+    TranslateModule,
   ],
   template: `
     <div class="page-header">
-      <h2>Leaderboard</h2>
-      <p class="subtitle">Rankings by total points. Exact score predictions earn bonus points.</p>
+      <h2>{{ 'leaderboard.title' | translate }}</h2>
+      <p class="subtitle">{{ 'leaderboard.subtitle' | translate }}</p>
     </div>
 
     @if (loading()) {
@@ -49,27 +51,27 @@ import {
       <div class="state-box error-box">
         <mat-icon>error_outline</mat-icon>
         <p>{{ error() }}</p>
-        <button mat-stroked-button (click)="reload()">Retry</button>
+        <button mat-stroked-button (click)="reload()">{{ 'leaderboard.retry' | translate }}</button>
       </div>
     } @else if (entries().length === 0) {
       <div class="state-box empty-box">
         <mat-icon>emoji_events</mat-icon>
-        <p>No predictions have been made yet.</p>
-        <p class="hint">Be the first to submit your predictions!</p>
+        <p>{{ 'leaderboard.empty' | translate }}</p>
+        <p class="hint">{{ 'leaderboard.emptyHint' | translate }}</p>
       </div>
     } @else {
       <mat-card class="table-card">
         <table mat-table [dataSource]="entries()" class="leaderboard-table">
 
           <ng-container matColumnDef="rank">
-            <th mat-header-cell *matHeaderCellDef class="rank-col">#</th>
+            <th mat-header-cell *matHeaderCellDef class="rank-col">{{ 'leaderboard.rankCol' | translate }}</th>
             <td mat-cell *matCellDef="let row" class="rank-col">
               @if (row.rank === 1) {
-                <span class="medal gold" title="1st place">🥇</span>
+                <span class="medal gold" [title]="'leaderboard.medal.first' | translate">🥇</span>
               } @else if (row.rank === 2) {
-                <span class="medal silver" title="2nd place">🥈</span>
+                <span class="medal silver" [title]="'leaderboard.medal.second' | translate">🥈</span>
               } @else if (row.rank === 3) {
-                <span class="medal bronze" title="3rd place">🥉</span>
+                <span class="medal bronze" [title]="'leaderboard.medal.third' | translate">🥉</span>
               } @else {
                 <span class="rank-num">{{ row.rank }}</span>
               }
@@ -77,22 +79,22 @@ import {
           </ng-container>
 
           <ng-container matColumnDef="displayName">
-            <th mat-header-cell *matHeaderCellDef>Player</th>
+            <th mat-header-cell *matHeaderCellDef>{{ 'leaderboard.playerCol' | translate }}</th>
             <td mat-cell *matCellDef="let row">
               <span class="player-name">{{ row.displayName }}</span>
               @if (row.displayName === currentUserName()) {
-                <span class="you-badge">You</span>
+                <span class="you-badge">{{ 'leaderboard.you' | translate }}</span>
               }
             </td>
           </ng-container>
 
           <ng-container matColumnDef="totalPoints">
-            <th mat-header-cell *matHeaderCellDef class="num-col">Points</th>
+            <th mat-header-cell *matHeaderCellDef class="num-col">{{ 'leaderboard.pointsCol' | translate }}</th>
             <td mat-cell *matCellDef="let row" class="num-col points-val">{{ row.totalPoints }}</td>
           </ng-container>
 
           <ng-container matColumnDef="exactHits">
-            <th mat-header-cell *matHeaderCellDef class="num-col">Exact</th>
+            <th mat-header-cell *matHeaderCellDef class="num-col">{{ 'leaderboard.exactCol' | translate }}</th>
             <td mat-cell *matCellDef="let row" class="num-col">{{ row.exactHits }}</td>
           </ng-container>
 
@@ -102,7 +104,7 @@ import {
               @if (row.userId === currentUserId()) {
                 <button mat-icon-button
                   class="history-btn"
-                  title="View my predictions"
+                  [title]="'leaderboard.viewHistory' | translate"
                   (click)="openHistory($event, row)">
                   <mat-icon>bar_chart</mat-icon>
                 </button>
@@ -121,7 +123,7 @@ import {
         </table>
       </mat-card>
 
-      <p class="table-footer">{{ entries().length }} participant{{ entries().length !== 1 ? 's' : '' }} · Click your own row to view your predictions</p>
+      <p class="table-footer">{{ footerText() }}</p>
     }
   `,
   styles: [`
@@ -167,7 +169,6 @@ import {
     .history-btn { color: #9e9e9e; }
     .history-btn:hover { color: #3f51b5; }
 
-    /* Skeleton loading */
     .skeleton-header {
       display: flex;
       align-items: center;
@@ -204,7 +205,6 @@ import {
       100% { background-position: -200% 0; }
     }
 
-    /* State boxes */
     .state-box {
       display: flex;
       flex-direction: column;
@@ -233,15 +233,11 @@ import {
     }
   `],
 })
-/**
- * Smart component — displays the full leaderboard table ranked by points.
- * Highlights the current user's row and opens a UserHistoryDialogComponent
- * when the current user clicks their own row.
- */
 export class LeaderboardPageComponent implements OnInit {
   private svc = inject(LeaderboardService);
   private auth = inject(AuthService);
   private dialog = inject(MatDialog);
+  private translate = inject(TranslateService);
 
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
@@ -249,6 +245,12 @@ export class LeaderboardPageComponent implements OnInit {
 
   readonly currentUserName = computed(() => this.auth.user()?.displayName ?? '');
   readonly currentUserId = computed(() => this.auth.user()?.userId ?? '');
+
+  readonly footerText = computed(() => {
+    const count = this.entries().length;
+    const key = count === 1 ? 'leaderboard.footerOne' : 'leaderboard.footerMany';
+    return this.translate.instant(key, { count });
+  });
 
   readonly columns = ['rank', 'displayName', 'totalPoints', 'exactHits', 'actions'];
   readonly skeletonRows = [1, 2, 3, 4, 5, 6, 7, 8];
@@ -265,7 +267,6 @@ export class LeaderboardPageComponent implements OnInit {
   }
 
   openHistory(event: Event, entry: LeaderboardEntryDto): void {
-    // Only the current user can view their own prediction history.
     if (entry.userId !== this.currentUserId()) return;
     event.stopPropagation();
     const data: HistoryDialogData = {
@@ -284,7 +285,10 @@ export class LeaderboardPageComponent implements OnInit {
   private fetchLeaderboard(): void {
     this.svc.getLeaderboard().subscribe({
       next: data => { this.entries.set(data); this.loading.set(false); },
-      error: () => { this.error.set('Failed to load leaderboard. Please try again.'); this.loading.set(false); },
+      error: () => {
+        this.error.set(this.translate.instant('leaderboard.errorLoad'));
+        this.loading.set(false);
+      },
     });
   }
 }

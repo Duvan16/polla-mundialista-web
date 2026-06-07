@@ -8,6 +8,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { DatePipe } from '@angular/common';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { PredictionsService } from '../../../core/services/predictions.service';
 import { MatchWithPredictionDto } from '../../../core/models';
 import { extractApiError } from '../../../core/utils/api-error';
@@ -29,10 +30,11 @@ type GoalForm = FormGroup<{
     MatProgressSpinnerModule,
     MatIconModule,
     DatePipe,
+    TranslateModule,
   ],
   template: `
     <div class="page-container">
-      <h2 class="page-title">My Predictions</h2>
+      <h2 class="page-title">{{ 'matches.title' | translate }}</h2>
 
       @if (loading()) {
         <div class="center"><mat-spinner /></div>
@@ -42,7 +44,7 @@ type GoalForm = FormGroup<{
           <span>{{ error() }}</span>
         </div>
       } @else if (matches().length === 0) {
-        <p class="empty">No matches available.</p>
+        <p class="empty">{{ 'matches.empty' | translate }}</p>
       } @else {
         @for (group of groupNames(); track group) {
           <section class="group-section">
@@ -55,13 +57,13 @@ type GoalForm = FormGroup<{
                   <div class="match-header">
                     <div class="teams">
                       <span class="team">{{ match.homeTeam }}</span>
-                      <span class="vs">vs</span>
+                      <span class="vs">{{ 'common.vs' | translate }}</span>
                       <span class="team">{{ match.awayTeam }}</span>
                     </div>
                     <div class="meta">
                       <span class="date">{{ match.matchDate | date:'MMM d · HH:mm' }}</span>
                       @if (match.isFinished) {
-                        <span class="status-chip">Finished</span>
+                        <span class="status-chip">{{ 'matches.finished' | translate }}</span>
                       }
                     </div>
                   </div>
@@ -69,20 +71,20 @@ type GoalForm = FormGroup<{
                   @if (match.isFinished) {
                     <div class="finished-row">
                       <div class="score-block">
-                        <span class="score-label">Your Prediction</span>
+                        <span class="score-label">{{ 'matches.yourPrediction' | translate }}</span>
                         <span class="score-value">
                           {{ match.myPredictedHomeGoals ?? '—' }} – {{ match.myPredictedAwayGoals ?? '—' }}
                         </span>
                       </div>
                       <div class="score-block">
-                        <span class="score-label">Result</span>
+                        <span class="score-label">{{ 'matches.result' | translate }}</span>
                         <span class="score-value actual">
                           {{ match.actualHomeGoals ?? '?' }} – {{ match.actualAwayGoals ?? '?' }}
                         </span>
                       </div>
                       <div class="points-block" [class.points-positive]="(match.pointsAwarded ?? 0) > 0">
                         <span class="points-value">{{ match.pointsAwarded ?? 0 }}</span>
-                        <span class="points-unit">pts</span>
+                        <span class="points-unit">{{ 'common.pts' | translate }}</span>
                       </div>
                     </div>
                   } @else {
@@ -90,12 +92,12 @@ type GoalForm = FormGroup<{
                       [formGroup]="matchForms[match.matchId]"
                       (ngSubmit)="savePrediction(match.matchId)">
                       <mat-form-field appearance="outline" class="score-field">
-                        <mat-label>Home</mat-label>
+                        <mat-label>{{ 'matches.homeLabel' | translate }}</mat-label>
                         <input matInput type="number" min="0" formControlName="home" />
                       </mat-form-field>
                       <span class="form-dash">–</span>
                       <mat-form-field appearance="outline" class="score-field">
-                        <mat-label>Away</mat-label>
+                        <mat-label>{{ 'matches.awayLabel' | translate }}</mat-label>
                         <input matInput type="number" min="0" formControlName="away" />
                       </mat-form-field>
                       <button mat-flat-button color="primary" type="submit"
@@ -103,7 +105,7 @@ type GoalForm = FormGroup<{
                         @if (saving()[match.matchId]) {
                           <mat-spinner diameter="18" />
                         } @else {
-                          Save
+                          {{ 'matches.saveBtn' | translate }}
                         }
                       </button>
                     </form>
@@ -175,21 +177,15 @@ type GoalForm = FormGroup<{
     .empty { color: #aaa; padding: 24px 0; }
   `],
 })
-/**
- * Smart component — the main predictions page for regular users.
- * Loads all 12 matches from /predictions/upcoming (with any existing prediction prefilled),
- * groups them by groupName, and lets the user submit or update goal predictions for
- * unfinished matches. Finished matches show the actual result and points awarded.
- */
 export class MatchesListComponent implements OnInit {
   private svc = inject(PredictionsService);
   private fb = inject(FormBuilder);
   private snackBar = inject(MatSnackBar);
+  private translate = inject(TranslateService);
 
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
   readonly matches = signal<MatchWithPredictionDto[]>([]);
-  /** Per-matchId saving flag used to disable the Save button and show a spinner. */
   readonly saving = signal<Record<string, boolean>>({});
 
   readonly groupedMatches = computed(() => {
@@ -203,7 +199,6 @@ export class MatchesListComponent implements OnInit {
 
   readonly groupNames = computed(() => Object.keys(this.groupedMatches()).sort());
 
-  // Plain Record (not a signal) — Angular reactive forms manage their own change detection.
   matchForms: Record<string, GoalForm> = {};
 
   ngOnInit(): void {
@@ -214,7 +209,7 @@ export class MatchesListComponent implements OnInit {
         this.loading.set(false);
       },
       error: err => {
-        this.error.set(extractApiError(err, 'Failed to load matches.'));
+        this.error.set(extractApiError(err, this.translate.instant('matches.errorLoad')));
         this.loading.set(false);
       },
     });
@@ -235,8 +230,7 @@ export class MatchesListComponent implements OnInit {
     }).subscribe({
       next: () => {
         this.saving.update(s => ({ ...s, [matchId]: false }));
-        this.snackBar.open('Prediction saved!', undefined, { duration: 2500 });
-        // Optimistic update: reflect the saved values immediately without re-fetching.
+        this.snackBar.open(this.translate.instant('matches.predictionSaved'), undefined, { duration: 2500 });
         this.matches.update(ms =>
           ms.map(m =>
             m.matchId === matchId
@@ -248,8 +242,8 @@ export class MatchesListComponent implements OnInit {
       error: err => {
         this.saving.update(s => ({ ...s, [matchId]: false }));
         this.snackBar.open(
-          extractApiError(err, 'Failed to save prediction.'),
-          'Dismiss',
+          extractApiError(err, this.translate.instant('matches.predictionError')),
+          this.translate.instant('common.dismiss'),
           { duration: 4000 },
         );
       },

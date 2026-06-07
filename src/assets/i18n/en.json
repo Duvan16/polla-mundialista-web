@@ -1,0 +1,122 @@
+{
+  "common": {
+    "appTitle": "Polla Mundialista",
+    "retry": "Retry",
+    "close": "Close",
+    "cancel": "Cancel",
+    "save": "Save",
+    "dismiss": "Dismiss",
+    "vs": "vs",
+    "pts": "pts",
+    "loading": "Loading…",
+    "langEs": "ES",
+    "langEn": "EN"
+  },
+  "nav": {
+    "matches": "Matches",
+    "leaderboard": "Leaderboard",
+    "admin": "Admin",
+    "userMenuLabel": "User menu",
+    "signOut": "Sign out"
+  },
+  "auth": {
+    "login": {
+      "title": "Sign In",
+      "subtitle": "Polla Mundialista",
+      "emailLabel": "Email",
+      "passwordLabel": "Password",
+      "submitBtn": "Sign In",
+      "registerLink": "Don't have an account? Register",
+      "errorFallback": "Login failed. Please try again."
+    },
+    "register": {
+      "title": "Create Account",
+      "subtitle": "Polla Mundialista",
+      "displayNameLabel": "Display Name",
+      "emailLabel": "Email",
+      "passwordLabel": "Password",
+      "submitBtn": "Register",
+      "loginLink": "Already have an account? Sign in",
+      "errorFallback": "Registration failed. Please try again."
+    },
+    "validation": {
+      "emailRequired": "Email is required",
+      "emailInvalid": "Enter a valid email address",
+      "passwordRequired": "Password is required",
+      "passwordMinLength": "Password must be at least 6 characters",
+      "displayNameRequired": "Display name is required"
+    },
+    "rateLimit": "Too many attempts, please wait a minute"
+  },
+  "matches": {
+    "title": "My Predictions",
+    "empty": "No matches available.",
+    "errorLoad": "Failed to load matches.",
+    "finished": "Finished",
+    "yourPrediction": "Your Prediction",
+    "result": "Result",
+    "homeLabel": "Home",
+    "awayLabel": "Away",
+    "saveBtn": "Save",
+    "predictionSaved": "Prediction saved!",
+    "predictionError": "Failed to save prediction."
+  },
+  "admin": {
+    "title": "Match Results",
+    "empty": "No matches found.",
+    "errorLoad": "Failed to load matches.",
+    "finished": "Finished",
+    "finalScore": "Final Score",
+    "homeGoals": "Home Goals",
+    "awayGoals": "Away Goals",
+    "homeLabel": "Home",
+    "awayLabel": "Away",
+    "updateResult": "Update Result",
+    "saveResult": "Save Result",
+    "resultSaved": "Result saved!",
+    "resultError": "Failed to save result.",
+    "goalsRequired": "Both goal values are required.",
+    "retry": "Retry",
+    "confirm": {
+      "title": "Confirm Result",
+      "warning": "This cannot be undone once confirmed.",
+      "cancel": "Cancel",
+      "save": "Save Result"
+    }
+  },
+  "leaderboard": {
+    "title": "Leaderboard",
+    "subtitle": "Rankings by total points. Exact score predictions earn bonus points.",
+    "rankCol": "#",
+    "playerCol": "Player",
+    "pointsCol": "Points",
+    "exactCol": "Exact",
+    "you": "You",
+    "viewHistory": "View my predictions",
+    "empty": "No predictions have been made yet.",
+    "emptyHint": "Be the first to submit your predictions!",
+    "retry": "Retry",
+    "errorLoad": "Failed to load leaderboard. Please try again.",
+    "footerOne": "{{count}} participant · Click your own row to view your predictions",
+    "footerMany": "{{count}} participants · Click your own row to view your predictions",
+    "medal": {
+      "first": "1st place",
+      "second": "2nd place",
+      "third": "3rd place"
+    },
+    "history": {
+      "titleSuffix": "'s Predictions",
+      "loadingText": "Loading predictions…",
+      "empty": "No predictions submitted yet.",
+      "matchCol": "Match",
+      "predictionCol": "Prediction",
+      "resultCol": "Result",
+      "ptsCol": "Pts",
+      "pending": "Pending",
+      "totalPoints": "Total Points:",
+      "exactHits": "Exact Hits:",
+      "close": "Close",
+      "errorLoad": "Could not load prediction history."
+    }
+  }
+}
