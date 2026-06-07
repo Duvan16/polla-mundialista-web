@@ -88,6 +88,10 @@ import { MatchWithPredictionDto } from '../../../core/models';
     .empty { color: #777; }
   `],
 })
+/**
+ * Smart component — legacy/secondary admin view for setting results via uncontrolled inputs.
+ * Prefer AdminMatchesComponent (admin-matches) for the primary admin workflow.
+ */
 export class AdminResultsComponent implements OnInit {
   private adminSvc = inject(AdminService);
   private predSvc = inject(PredictionsService);
@@ -99,6 +103,7 @@ export class AdminResultsComponent implements OnInit {
   readonly saved = signal<Record<string, boolean>>({});
   readonly saveError = signal<Record<string, string>>({});
 
+  // Plain object (not a signal) because values are only needed at submit time, not for rendering.
   private pendingGoals: Record<string, { home?: number; away?: number }> = {};
 
   ngOnInit(): void {

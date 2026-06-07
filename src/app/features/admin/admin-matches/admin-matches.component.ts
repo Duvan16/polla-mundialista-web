@@ -36,6 +36,7 @@ import { extractApiError } from '../../../core/utils/api-error';
     .warning { font-size: 0.78rem; color: #999; margin-top: 4px; }
   `],
 })
+/** Confirmation dialog shown before saving a match result. Displays the score for admin review. */
 export class ConfirmResultDialogComponent {
   data = inject(MAT_DIALOG_DATA) as {
     homeTeam: string;
@@ -242,6 +243,11 @@ type GoalForm = FormGroup<{
     .empty { color: #aaa; padding: 24px 0; }
   `],
 })
+/**
+ * Smart component — primary admin panel for recording match results.
+ * Loads all matches via AdminService, groups them by groupName, and
+ * lets admins enter or update scores (with a confirmation dialog before saving).
+ */
 export class AdminMatchesComponent implements OnInit {
   private adminSvc = inject(AdminService);
   private fb = inject(FormBuilder);

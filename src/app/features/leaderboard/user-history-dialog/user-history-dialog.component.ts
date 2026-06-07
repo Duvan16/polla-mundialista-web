@@ -9,6 +9,7 @@ import { DatePipe } from '@angular/common';
 import { LeaderboardService } from '../../../core/services/leaderboard.service';
 import { UserHistoryItemDto } from '../../../core/models';
 
+/** Data injected via MAT_DIALOG_DATA when opening the history dialog. */
 export interface HistoryDialogData {
   userId: string;
   displayName: string;
@@ -182,6 +183,10 @@ export interface HistoryDialogData {
     .ml { margin-left: 24px; }
   `],
 })
+/**
+ * Presentational dialog that shows a user's full prediction history in a table.
+ * Opened by LeaderboardPageComponent; receives userId and displayName via MAT_DIALOG_DATA.
+ */
 export class UserHistoryDialogComponent implements OnInit {
   readonly data = inject<HistoryDialogData>(MAT_DIALOG_DATA);
   private svc = inject(LeaderboardService);

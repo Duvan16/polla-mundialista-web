@@ -4,6 +4,13 @@ import { BehaviorSubject, catchError, filter, switchMap, take, throwError } from
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { AuthService } from '../auth/auth.service';
 
+/**
+ * Attaches the Bearer token to every non-auth request. On 401, silently refreshes
+ * the access token once and retries; if refresh fails, logs the user out.
+ * Rate-limit (429) errors on auth endpoints are surfaced as a snack-bar message.
+ */
+
+// Module-level singletons prevent multiple simultaneous refresh calls (refresh storm guard).
 let isRefreshing = false;
 const refreshTokenSubject = new BehaviorSubject<string | null>(null);
 
@@ -42,6 +49,10 @@ export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
   );
 };
 
+/**
+ * Handles a 401 from a non-auth endpoint. If a refresh is already in progress,
+ * queues the request on `refreshTokenSubject` to retry once the new token arrives.
+ */
 function handle401(req: HttpRequest<unknown>, next: HttpHandlerFn, auth: AuthService) {
   if (!isRefreshing) {
     isRefreshing = true;

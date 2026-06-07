@@ -9,15 +9,18 @@ interface SetResultDto {
   awayGoals: number;
 }
 
+/** Handles admin-only API calls for reading matches and recording final results. */
 @Injectable({ providedIn: 'root' })
 export class AdminService {
   private http = inject(HttpClient);
   private base = `${environment.apiUrl}/admin`;
 
+  /** Returns all matches with their current result status. Observable<MatchWithPredictionDto[]>. */
   getMatches(): Observable<MatchWithPredictionDto[]> {
     return this.http.get<MatchWithPredictionDto[]>(`${this.base}/matches`);
   }
 
+  /** Saves or updates the final score for a match. Observable<void>. */
   setMatchResult(matchId: string, dto: SetResultDto): Observable<void> {
     return this.http.put<void>(`${this.base}/matches/${matchId}/result`, dto);
   }

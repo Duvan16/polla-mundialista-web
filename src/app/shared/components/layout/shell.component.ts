@@ -67,11 +67,17 @@ import { AuthService } from '../../../core/auth/auth.service';
     .menu-email { font-size: 12px; color: #888; margin-top: 2px; }
   `],
 })
+/**
+ * App shell — renders the top navigation bar with route links and a user avatar menu.
+ * Admin link is conditionally shown based on the isAdmin signal.
+ * Hosts the router-outlet for all feature pages.
+ */
 export class ShellComponent {
   private auth = inject(AuthService);
   readonly isAdmin = this.auth.isAdmin;
   readonly user = this.auth.user;
 
+  // Derives up to two initials from the display name for the avatar circle.
   readonly initials = computed(() => {
     const name = this.user()?.displayName ?? '';
     return name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();

@@ -175,6 +175,12 @@ type GoalForm = FormGroup<{
     .empty { color: #aaa; padding: 24px 0; }
   `],
 })
+/**
+ * Smart component — the main predictions page for regular users.
+ * Loads all 12 matches from /predictions/upcoming (with any existing prediction prefilled),
+ * groups them by groupName, and lets the user submit or update goal predictions for
+ * unfinished matches. Finished matches show the actual result and points awarded.
+ */
 export class MatchesListComponent implements OnInit {
   private svc = inject(PredictionsService);
   private fb = inject(FormBuilder);
@@ -183,6 +189,7 @@ export class MatchesListComponent implements OnInit {
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
   readonly matches = signal<MatchWithPredictionDto[]>([]);
+  /** Per-matchId saving flag used to disable the Save button and show a spinner. */
   readonly saving = signal<Record<string, boolean>>({});
 
   readonly groupedMatches = computed(() => {
@@ -196,6 +203,7 @@ export class MatchesListComponent implements OnInit {
 
   readonly groupNames = computed(() => Object.keys(this.groupedMatches()).sort());
 
+  // Plain Record (not a signal) — Angular reactive forms manage their own change detection.
   matchForms: Record<string, GoalForm> = {};
 
   ngOnInit(): void {
@@ -228,6 +236,7 @@ export class MatchesListComponent implements OnInit {
       next: () => {
         this.saving.update(s => ({ ...s, [matchId]: false }));
         this.snackBar.open('Prediction saved!', undefined, { duration: 2500 });
+        // Optimistic update: reflect the saved values immediately without re-fetching.
         this.matches.update(ms =>
           ms.map(m =>
             m.matchId === matchId

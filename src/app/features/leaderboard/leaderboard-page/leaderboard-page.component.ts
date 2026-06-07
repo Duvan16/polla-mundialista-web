@@ -233,6 +233,11 @@ import {
     }
   `],
 })
+/**
+ * Smart component — displays the full leaderboard table ranked by points.
+ * Highlights the current user's row and opens a UserHistoryDialogComponent
+ * when the current user clicks their own row.
+ */
 export class LeaderboardPageComponent implements OnInit {
   private svc = inject(LeaderboardService);
   private auth = inject(AuthService);
@@ -260,6 +265,7 @@ export class LeaderboardPageComponent implements OnInit {
   }
 
   openHistory(event: Event, entry: LeaderboardEntryDto): void {
+    // Only the current user can view their own prediction history.
     if (entry.userId !== this.currentUserId()) return;
     event.stopPropagation();
     const data: HistoryDialogData = {

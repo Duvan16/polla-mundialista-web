@@ -81,6 +81,7 @@ import { extractApiError } from '../../../core/utils/api-error';
     mat-card-actions { padding: 8px 16px 16px; }
   `],
 })
+/** Presentational + smart — email/password login form. Navigates to /matches on success. */
 export class LoginComponent {
   private fb = inject(FormBuilder);
   private auth = inject(AuthService);

@@ -1,3 +1,8 @@
+/**
+ * Extracts a human-readable message from an API error response.
+ * Handles .NET ProblemDetails (detail / title) and custom error shapes (error / message).
+ * Returns `fallback` when no recognisable field is found.
+ */
 export function extractApiError(err: unknown, fallback: string): string {
   const body = (err as { error?: Record<string, unknown> })?.error;
   if (!body) return fallback;

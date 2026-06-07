@@ -89,6 +89,7 @@ import { extractApiError } from '../../../core/utils/api-error';
     mat-card-actions { padding: 8px 16px 16px; }
   `],
 })
+/** Presentational + smart — new account registration form. Navigates to /matches on success. */
 export class RegisterComponent {
   private fb = inject(FormBuilder);
   private auth = inject(AuthService);
