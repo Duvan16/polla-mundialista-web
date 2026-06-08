@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
@@ -81,9 +81,74 @@ import { LanguageService, AppLang } from '../../../core/services/language.servic
           </button>
         </mat-menu>
       }
+
+      <!-- Hamburger — mobile only -->
+      <button mat-icon-button class="hamburger-btn" (click)="toggleMenu()"
+        [attr.aria-label]="mobileMenuOpen() ? 'Close menu' : 'Open menu'"
+        [attr.aria-expanded]="mobileMenuOpen()">
+        <mat-icon>{{ mobileMenuOpen() ? 'close' : 'menu' }}</mat-icon>
+      </button>
     </mat-toolbar>
 
     <div class="nav-accent-bar" aria-hidden="true"></div>
+
+    <!-- Mobile drawer -->
+    @if (mobileMenuOpen()) {
+      <div class="mobile-overlay" (click)="closeMenu()" aria-hidden="true"></div>
+      <nav class="mobile-drawer" aria-label="Mobile navigation">
+        @if (user()) {
+          <div class="mobile-user-info">
+            <span class="mobile-avatar">{{ initials() }}</span>
+            <div>
+              <div class="mobile-user-name">{{ user()!.displayName }}</div>
+              <div class="mobile-user-email">{{ user()!.email }}</div>
+            </div>
+          </div>
+          <mat-divider />
+        }
+
+        <a mat-button class="mobile-nav-link" routerLink="/matches"
+          routerLinkActive="active-link" (click)="closeMenu()">
+          <mat-icon>sports_soccer</mat-icon>
+          {{ 'nav.matches' | translate }}
+        </a>
+        <a mat-button class="mobile-nav-link" routerLink="/leaderboard"
+          routerLinkActive="active-link" (click)="closeMenu()">
+          <mat-icon>leaderboard</mat-icon>
+          {{ 'nav.leaderboard' | translate }}
+        </a>
+        @if (isAdmin()) {
+          <a mat-button class="mobile-nav-link" routerLink="/admin"
+            routerLinkActive="active-link" (click)="closeMenu()">
+            <mat-icon>admin_panel_settings</mat-icon>
+            {{ 'nav.admin' | translate }}
+          </a>
+        }
+
+        <mat-divider />
+
+        <div class="mobile-lang-row">
+          <button mat-button class="mobile-lang-opt"
+            [class.active-lang]="currentLang() === 'es'"
+            (click)="setLang('es'); closeMenu()">
+            🇪🇸 {{ 'common.langEs' | translate }}
+          </button>
+          <button mat-button class="mobile-lang-opt"
+            [class.active-lang]="currentLang() === 'en'"
+            (click)="setLang('en'); closeMenu()">
+            🇬🇧 {{ 'common.langEn' | translate }}
+          </button>
+        </div>
+
+        @if (user()) {
+          <mat-divider />
+          <button mat-button class="mobile-nav-link mobile-logout" (click)="logout()">
+            <mat-icon>logout</mat-icon>
+            {{ 'nav.signOut' | translate }}
+          </button>
+        }
+      </nav>
+    }
 
     <main class="main-content" id="main-content">
       <router-outlet />
@@ -189,9 +254,130 @@ import { LanguageService, AppLang } from '../../../core/services/language.servic
       margin: 0 auto;
     }
 
+    /* ── Hamburger (hidden on desktop) ── */
+    .hamburger-btn {
+      display: none;
+      color: rgba(255,255,255,.85) !important;
+      margin-left: var(--sp-1) !important;
+    }
+
+    /* ── Mobile overlay ── */
+    .mobile-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.5);
+      z-index: 99;
+      backdrop-filter: blur(2px);
+    }
+
+    /* ── Mobile drawer ── */
+    .mobile-drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: min(280px, 85vw);
+      height: 100dvh;
+      background: var(--c-surface, #0f1923);
+      border-left: 1px solid rgba(255,255,255,.08);
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      padding: var(--sp-6) var(--sp-3) var(--sp-4);
+      gap: var(--sp-1);
+      overflow-y: auto;
+      animation: slideIn 220ms cubic-bezier(.22,.61,.36,1) both;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to   { transform: translateX(0);    opacity: 1; }
+    }
+
+    .mobile-user-info {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-3);
+      padding: var(--sp-2) var(--sp-2) var(--sp-3);
+    }
+
+    .mobile-avatar {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: rgba(245,166,35,.22);
+      border: 1.5px solid rgba(245,166,35,.55);
+      color: var(--c-accent);
+      font-family: var(--f-display);
+      font-size: .85rem; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .mobile-user-name  { font-weight: 600; font-size: .875rem; color: #fff; }
+    .mobile-user-email { font-size: .72rem; color: rgba(255,255,255,.5); margin-top: 2px; }
+
+    .mobile-nav-link {
+      width: 100% !important;
+      justify-content: flex-start !important;
+      gap: var(--sp-3) !important;
+      font-size: .9rem !important;
+      font-weight: 500 !important;
+      color: rgba(255,255,255,.8) !important;
+      border-radius: var(--r-sm) !important;
+      padding: var(--sp-2) var(--sp-2) !important;
+      height: 44px !important;
+    }
+
+    .mobile-nav-link mat-icon {
+      font-size: 20px; width: 20px; height: 20px;
+      color: rgba(255,255,255,.5);
+    }
+
+    .mobile-nav-link:hover {
+      background: rgba(255,255,255,.07) !important;
+      color: #fff !important;
+    }
+
+    .mobile-nav-link.active-link {
+      color: var(--c-accent) !important;
+      background: rgba(245,166,35,.12) !important;
+      font-weight: 600 !important;
+    }
+
+    .mobile-nav-link.active-link mat-icon { color: var(--c-accent); }
+
+    .mobile-logout {
+      color: rgba(255,100,100,.8) !important;
+      margin-top: auto;
+    }
+
+    .mobile-lang-row {
+      display: flex;
+      gap: var(--sp-2);
+      padding: var(--sp-2) 0;
+    }
+
+    .mobile-lang-opt {
+      flex: 1;
+      font-size: .8rem !important;
+      font-weight: 500 !important;
+      color: rgba(255,255,255,.6) !important;
+      border: 1px solid rgba(255,255,255,.1) !important;
+      border-radius: var(--r-sm) !important;
+    }
+
+    .mobile-lang-opt.active-lang {
+      color: var(--c-accent) !important;
+      border-color: rgba(245,166,35,.4) !important;
+      background: rgba(245,166,35,.08) !important;
+      font-weight: 700 !important;
+    }
+
     @media (max-width: 640px) {
       .app-title { font-size: 1rem; letter-spacing: 1px; }
-      .main-nav { display: none; }
+      .main-nav  { display: none; }
+      .lang-btn  { display: none; }
+      .avatar-btn { display: none; }
+      .hamburger-btn { display: inline-flex; }
       .main-content { padding: var(--sp-4) var(--sp-3); }
     }
   `],
@@ -203,11 +389,15 @@ export class ShellComponent {
   readonly isAdmin = this.auth.isAdmin;
   readonly user = this.auth.user;
   readonly currentLang = this.langSvc.currentLang;
+  readonly mobileMenuOpen = signal(false);
 
   readonly initials = computed(() => {
     const name = this.user()?.displayName ?? '';
     return name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
   });
+
+  toggleMenu(): void { this.mobileMenuOpen.update(v => !v); }
+  closeMenu(): void  { this.mobileMenuOpen.set(false); }
 
   setLang(lang: AppLang): void {
     this.langSvc.setLang(lang);
