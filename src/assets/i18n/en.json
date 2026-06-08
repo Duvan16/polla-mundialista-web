@@ -27,8 +27,9 @@
       "emailLabel": "Email",
       "passwordLabel": "Password",
       "submitBtn": "Sign In",
-      "registerLink": "Don't have an account? Register",
-      "backToHome": "← Back to home",
+      "registerLink": "Don't have an account?",
+      "registerLinkAction": "Create one",
+      "backToHome": "Back to home",
       "errorFallback": "Login failed. Please try again."
     },
     "register": {
@@ -39,8 +40,9 @@
       "emailLabel": "Email",
       "passwordLabel": "Password",
       "submitBtn": "Register",
-      "loginLink": "Already have an account? Sign in",
-      "backToHome": "← Back to home",
+      "loginLink": "Already have an account?",
+      "loginLinkAction": "Sign in",
+      "backToHome": "Back to home",
       "errorFallback": "Registration failed. Please try again."
     },
     "validation": {
@@ -48,6 +50,7 @@
       "emailInvalid": "Enter a valid email address",
       "passwordRequired": "Password is required",
       "passwordMinLength": "Password must be at least 6 characters",
+      "passwordHint": "Minimum 6 characters",
       "displayNameRequired": "Display name is required"
     },
     "rateLimit": "Too many attempts, please wait a minute"

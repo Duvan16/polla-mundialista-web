@@ -6,6 +6,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -23,35 +24,33 @@ import { extractApiError } from '../../../core/utils/api-error';
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
+    MatIconModule,
     MatProgressSpinnerModule,
     TranslateModule,
   ],
   template: `
     <div class="auth-page">
-      <!-- Top bar: back link + lang switcher -->
       <div class="auth-topbar">
-        <a routerLink="/landing" class="back-link">{{ 'auth.login.backToHome' | translate }}</a>
+        <a routerLink="/landing" class="back-link">
+          <svg class="back-arrow" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M10 3L5 8L10 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          {{ 'auth.login.backToHome' | translate }}
+        </a>
         <div class="lang-toggle" role="group" aria-label="Language / Idioma">
-          <button
-            class="lang-btn"
-            [class.lang-btn--active]="currentLang() === 'es'"
-            (click)="setLang('es')" lang="es"
-            [attr.aria-pressed]="currentLang() === 'es'">
+          <button class="lang-btn" [class.lang-btn--active]="currentLang() === 'es'"
+            (click)="setLang('es')" lang="es" [attr.aria-pressed]="currentLang() === 'es'">
             {{ 'common.langEs' | translate }}
           </button>
           <span class="lang-sep" aria-hidden="true">/</span>
-          <button
-            class="lang-btn"
-            [class.lang-btn--active]="currentLang() === 'en'"
-            (click)="setLang('en')" lang="en"
-            [attr.aria-pressed]="currentLang() === 'en'">
+          <button class="lang-btn" [class.lang-btn--active]="currentLang() === 'en'"
+            (click)="setLang('en')" lang="en" [attr.aria-pressed]="currentLang() === 'en'">
             {{ 'common.langEn' | translate }}
           </button>
         </div>
       </div>
 
       <div class="auth-center">
-        <!-- Brand -->
         <div class="auth-brand">
           <svg class="brand-icon" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
             <circle cx="16" cy="16" r="14" fill="none" stroke="#F5A623" stroke-width="1.5" opacity=".35"/>
@@ -67,8 +66,8 @@ import { extractApiError } from '../../../core/utils/api-error';
           <span class="brand-name">{{ 'common.appTitle' | translate }}</span>
         </div>
 
-        <!-- Card -->
-        <mat-card class="auth-card anim-scale">
+        <mat-card class="auth-card">
+          <div class="card-accent-bar"></div>
           <div class="card-header">
             <h1 class="card-title">{{ 'auth.login.title' | translate }}</h1>
             <p class="card-subtitle">{{ 'auth.login.subtitle' | translate }}</p>
@@ -78,6 +77,7 @@ import { extractApiError } from '../../../core/utils/api-error';
             <form [formGroup]="form" (ngSubmit)="submit()">
               <mat-form-field appearance="outline" class="full-width">
                 <mat-label>{{ 'auth.login.emailLabel' | translate }}</mat-label>
+                <mat-icon matPrefix class="field-icon">mail_outline</mat-icon>
                 <input matInput formControlName="email" type="email" autocomplete="email" />
                 @if (form.get('email')?.hasError('required')) {
                   <mat-error>{{ 'auth.validation.emailRequired' | translate }}</mat-error>
@@ -88,19 +88,28 @@ import { extractApiError } from '../../../core/utils/api-error';
 
               <mat-form-field appearance="outline" class="full-width">
                 <mat-label>{{ 'auth.login.passwordLabel' | translate }}</mat-label>
-                <input matInput formControlName="password" type="password" autocomplete="current-password" />
+                <mat-icon matPrefix class="field-icon">lock_outline</mat-icon>
+                <input matInput formControlName="password"
+                  [type]="showPassword() ? 'text' : 'password'"
+                  autocomplete="current-password" />
+                <button mat-icon-button matSuffix type="button"
+                  (click)="showPassword.set(!showPassword())"
+                  [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'">
+                  <mat-icon>{{ showPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+                </button>
                 @if (form.get('password')?.hasError('required')) {
                   <mat-error>{{ 'auth.validation.passwordRequired' | translate }}</mat-error>
                 }
               </mat-form-field>
 
               @if (error()) {
-                <p class="error-message" role="alert">{{ error() }}</p>
+                <p class="error-message" role="alert">
+                  <mat-icon class="error-icon">error_outline</mat-icon>
+                  {{ error() }}
+                </p>
               }
 
-              <button mat-raised-button color="primary"
-                class="full-width submit-btn" type="submit"
-                [disabled]="loading()">
+              <button mat-flat-button class="full-width submit-btn" type="submit" [disabled]="loading()">
                 @if (loading()) {
                   <mat-spinner diameter="20" />
                 } @else {
@@ -111,7 +120,10 @@ import { extractApiError } from '../../../core/utils/api-error';
           </mat-card-content>
 
           <mat-card-actions>
-            <a routerLink="/auth/register">{{ 'auth.login.registerLink' | translate }}</a>
+            <p class="switch-text">
+              {{ 'auth.login.registerLink' | translate }}
+              <a routerLink="/auth/register" class="switch-link">{{ 'auth.login.registerLinkAction' | translate }}</a>
+            </p>
           </mat-card-actions>
         </mat-card>
       </div>
@@ -122,15 +134,15 @@ import { extractApiError } from '../../../core/utils/api-error';
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      background: #071A3D;
+      background-color: #071A3D;
       background-image:
-        url('/assets/bg-pattern.svg'),
-        linear-gradient(160deg, #071A3D 0%, #0D2B5E 55%, #071A3D 100%);
-      background-size: 200px 200px, 100% 100%;
+        linear-gradient(to bottom, rgba(7,26,61,.72) 0%, rgba(7,26,61,.58) 50%, rgba(7,26,61,.82) 100%),
+        url('/assets/hero-banner.png');
+      background-size: cover;
+      background-position: center;
       color: var(--c-on-primary);
     }
 
-    /* ── Top bar ── */
     .auth-topbar {
       display: flex;
       align-items: center;
@@ -140,6 +152,9 @@ import { extractApiError } from '../../../core/utils/api-error';
     }
 
     .back-link {
+      display: flex;
+      align-items: center;
+      gap: 6px;
       font-family: var(--f-body);
       font-size: var(--fs-sm);
       font-weight: 500;
@@ -149,7 +164,8 @@ import { extractApiError } from '../../../core/utils/api-error';
       transition: color var(--trans-f);
     }
 
-    .back-link:hover { color: rgba(255,255,255,.8); text-decoration: none; }
+    .back-link:hover { color: rgba(255,255,255,.85); }
+    .back-arrow { width: 16px; height: 16px; flex-shrink: 0; }
 
     .lang-toggle {
       display: flex;
@@ -181,7 +197,6 @@ import { extractApiError } from '../../../core/utils/api-error';
     .lang-btn:focus-visible { outline: 2px solid var(--c-accent); outline-offset: 2px; }
     .lang-sep { color: rgba(255,255,255,.2); font-size: .7rem; user-select: none; }
 
-    /* ── Auth center ── */
     .auth-center {
       flex: 1;
       display: flex;
@@ -196,6 +211,7 @@ import { extractApiError } from '../../../core/utils/api-error';
       align-items: center;
       gap: var(--sp-3);
       margin-bottom: var(--sp-7);
+      animation: authFadeUp .5s ease both;
     }
 
     .brand-icon { width: 36px; height: 36px; flex-shrink: 0; }
@@ -209,20 +225,26 @@ import { extractApiError } from '../../../core/utils/api-error';
       color: #fff;
     }
 
-    /* ── Card ── */
     .auth-card {
       width: 100%;
-      max-width: 400px;
+      max-width: 420px;
       background: var(--c-surface) !important;
-      border: 1px solid rgba(255,255,255,.08) !important;
-      box-shadow: 0 24px 64px rgba(0,0,0,.5), 0 4px 16px rgba(0,0,0,.3) !important;
+      border: 1px solid rgba(255,255,255,.1) !important;
+      box-shadow: 0 32px 80px rgba(0,0,0,.6), 0 4px 20px rgba(0,0,0,.35) !important;
       border-radius: var(--r-lg) !important;
+      overflow: hidden !important;
+      animation: authFadeUp .5s .1s ease both;
+    }
+
+    .card-accent-bar {
+      height: 3px;
+      background: linear-gradient(90deg, #C07010, #F5A623, #F0BB3A);
     }
 
     .card-header {
       padding: var(--sp-6) var(--sp-6) var(--sp-4);
       border-bottom: 1px solid var(--c-border);
-      margin-bottom: var(--sp-4);
+      margin-bottom: var(--sp-5);
     }
 
     .card-title {
@@ -236,47 +258,90 @@ import { extractApiError } from '../../../core/utils/api-error';
 
     .card-subtitle {
       font-size: var(--fs-sm);
-      color: var(--c-text-muted);
+      color: var(--c-text-2);
       margin: 0;
       line-height: 1.5;
     }
 
     mat-card-content { padding: 0 var(--sp-6) var(--sp-2) !important; }
 
-    .full-width { width: 100%; margin-bottom: var(--sp-3); }
+    .field-icon {
+      font-size: 18px !important;
+      width: 18px !important;
+      height: 18px !important;
+      color: var(--c-text-2);
+      margin-right: 4px;
+    }
+
+    .full-width { width: 100%; margin-bottom: var(--sp-4); }
 
     .submit-btn {
-      margin-top: var(--sp-2);
-      height: 46px;
+      margin-top: var(--sp-1);
+      height: 48px;
+      background: var(--c-accent) !important;
+      color: #071A3D !important;
       font-family: var(--f-display) !important;
       font-size: 1rem !important;
       font-weight: 700 !important;
-      letter-spacing: 1px !important;
+      letter-spacing: 1.2px !important;
+      border-radius: var(--r-sm) !important;
+      transition: background .18s ease, box-shadow .18s ease, transform .18s ease !important;
     }
 
+    .submit-btn:hover:not(:disabled) {
+      background: #E09015 !important;
+      box-shadow: 0 6px 20px rgba(245,166,35,.4) !important;
+      transform: translateY(-1px);
+    }
+
+    .submit-btn:disabled { opacity: .6; }
+
     .error-message {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-2);
       color: var(--c-error);
       font-size: var(--fs-sm);
-      margin-bottom: var(--sp-3);
-      padding: var(--sp-2) var(--sp-3);
+      margin-bottom: var(--sp-4);
+      padding: var(--sp-3) var(--sp-3);
       background: var(--c-error-bg);
       border-radius: var(--r-sm);
       border-left: 3px solid var(--c-error);
+      line-height: 1.4;
     }
+
+    .error-icon { font-size: 18px !important; width: 18px !important; height: 18px !important; flex-shrink: 0; }
 
     mat-card-actions {
-      padding: var(--sp-2) var(--sp-6) var(--sp-5) !important;
+      padding: var(--sp-3) var(--sp-6) var(--sp-6) !important;
+      text-align: center;
     }
 
-    mat-card-actions a {
-      color: var(--c-accent-d);
+    .switch-text {
       font-size: var(--fs-sm);
-      font-weight: 500;
+      color: var(--c-text-2);
+      margin: 0;
+    }
+
+    .switch-link {
+      color: var(--c-accent-d);
+      font-weight: 600;
+      text-decoration: none;
+      margin-left: 4px;
+      transition: color var(--trans-f);
+    }
+
+    .switch-link:hover { color: var(--c-accent); text-decoration: underline; }
+
+    @keyframes authFadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
 
     @media (max-width: 480px) {
-      .auth-topbar { padding: var(--sp-4) var(--sp-4); }
+      .auth-topbar { padding: var(--sp-4); }
       .brand-name  { font-size: 1.3rem; }
+      .auth-card   { max-width: 100%; }
     }
   `],
 })
@@ -290,6 +355,7 @@ export class LoginComponent implements OnInit {
 
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
+  readonly showPassword = signal(false);
   readonly currentLang = this.langSvc.currentLang;
 
   form = this.fb.nonNullable.group({

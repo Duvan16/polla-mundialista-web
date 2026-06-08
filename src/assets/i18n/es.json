@@ -27,8 +27,9 @@
       "emailLabel": "Correo electrónico",
       "passwordLabel": "Contraseña",
       "submitBtn": "Iniciar sesión",
-      "registerLink": "¿No tienes cuenta? Regístrate",
-      "backToHome": "← Volver al inicio",
+      "registerLink": "¿No tienes cuenta?",
+      "registerLinkAction": "Regístrate",
+      "backToHome": "Volver al inicio",
       "errorFallback": "Error al iniciar sesión. Inténtalo de nuevo."
     },
     "register": {
@@ -39,8 +40,9 @@
       "emailLabel": "Correo electrónico",
       "passwordLabel": "Contraseña",
       "submitBtn": "Registrarse",
-      "loginLink": "¿Ya tienes cuenta? Inicia sesión",
-      "backToHome": "← Volver al inicio",
+      "loginLink": "¿Ya tienes cuenta?",
+      "loginLinkAction": "Inicia sesión",
+      "backToHome": "Volver al inicio",
       "errorFallback": "Error al registrarse. Inténtalo de nuevo."
     },
     "validation": {
@@ -48,6 +50,7 @@
       "emailInvalid": "Ingresa un correo electrónico válido",
       "passwordRequired": "La contraseña es obligatoria",
       "passwordMinLength": "La contraseña debe tener al menos 6 caracteres",
+      "passwordHint": "Mínimo 6 caracteres",
       "displayNameRequired": "El nombre de usuario es obligatorio"
     },
     "rateLimit": "Demasiados intentos, espera un momento"
