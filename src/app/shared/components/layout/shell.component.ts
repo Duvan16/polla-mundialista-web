@@ -47,7 +47,7 @@ import { LanguageService, AppLang } from '../../../core/services/language.servic
         <a mat-button class="nav-link" routerLink="/matches"     routerLinkActive="active-link">{{ 'nav.matches'     | translate }}</a>
         <a mat-button class="nav-link" routerLink="/leaderboard" routerLinkActive="active-link">{{ 'nav.leaderboard' | translate }}</a>
         @if (isAdmin()) {
-          <a mat-button class="nav-link" routerLink="/admin" routerLinkActive="active-link">{{ 'nav.admin' | translate }}</a>
+          <a mat-button class="nav-link" routerLink="/admin" routerLinkActive="active-link">{{ 'nav.matchResults' | translate }}</a>
         }
       </nav>
 
@@ -121,7 +121,7 @@ import { LanguageService, AppLang } from '../../../core/services/language.servic
           <a mat-button class="mobile-nav-link" routerLink="/admin"
             routerLinkActive="active-link" (click)="closeMenu()">
             <mat-icon>admin_panel_settings</mat-icon>
-            {{ 'nav.admin' | translate }}
+            {{ 'nav.matchResults' | translate }}
           </a>
         }
 

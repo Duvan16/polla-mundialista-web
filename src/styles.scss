@@ -196,17 +196,22 @@ a:hover { text-decoration: underline; }
   width: 30px;
   height: 30px;
   border-radius: var(--r-full);
-  background: var(--c-primary-xl);
-  border: 1.5px solid var(--c-border-s);
+  background: rgba(245,166,35,.12);
+  border: 1.5px solid rgba(245,166,35,.45);
   font-family: var(--f-display);
   font-size: .6rem;
-  font-weight: 700;
-  color: var(--c-primary);
+  font-weight: 800;
+  color: #C07010;
   flex-shrink: 0;
   text-transform: uppercase;
   letter-spacing: .5px;
   vertical-align: middle;
 }
+
+@media (prefers-color-scheme: dark) {
+  .team-badge { color: #F5A623; }
+}
+body.dark-theme .team-badge { color: #F5A623; }
 
 // ─── Chips ──────────────────────────────────────────────────────────
 .chip {

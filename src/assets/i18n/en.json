@@ -7,6 +7,7 @@
     "save": "Save",
     "dismiss": "Dismiss",
     "vs": "vs",
+    "groupPrefix": "Group",
     "pts": "pts",
     "loading": "Loading…",
     "langEs": "ES",
@@ -16,6 +17,7 @@
     "matches": "Matches",
     "leaderboard": "Leaderboard",
     "admin": "Admin",
+    "matchResults": "Results",
     "userMenuLabel": "User menu",
     "signOut": "Sign out"
   },

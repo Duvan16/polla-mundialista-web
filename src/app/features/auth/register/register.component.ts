@@ -2,7 +2,6 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { Title } from '@angular/platform-browser';
-import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -20,7 +19,6 @@ import { extractApiError } from '../../../core/utils/api-error';
   imports: [
     ReactiveFormsModule,
     RouterLink,
-    MatCardModule,
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
@@ -30,28 +28,10 @@ import { extractApiError } from '../../../core/utils/api-error';
   ],
   template: `
     <div class="auth-page">
-      <div class="auth-topbar">
-        <a routerLink="/landing" class="back-link">
-          <svg class="back-arrow" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-            <path d="M10 3L5 8L10 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          {{ 'auth.register.backToHome' | translate }}
-        </a>
-        <div class="lang-toggle" role="group" aria-label="Language / Idioma">
-          <button class="lang-btn" [class.lang-btn--active]="currentLang() === 'es'"
-            (click)="setLang('es')" lang="es" [attr.aria-pressed]="currentLang() === 'es'">
-            {{ 'common.langEs' | translate }}
-          </button>
-          <span class="lang-sep" aria-hidden="true">/</span>
-          <button class="lang-btn" [class.lang-btn--active]="currentLang() === 'en'"
-            (click)="setLang('en')" lang="en" [attr.aria-pressed]="currentLang() === 'en'">
-            {{ 'common.langEn' | translate }}
-          </button>
-        </div>
-      </div>
-
-      <div class="auth-center">
-        <div class="auth-brand">
+      <!-- Left: stadium hero -->
+      <aside class="auth-hero">
+        <div class="hero-overlay"></div>
+        <div class="hero-body">
           <svg class="brand-icon" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
             <circle cx="16" cy="16" r="14" fill="none" stroke="#F5A623" stroke-width="1.5" opacity=".35"/>
             <circle cx="16" cy="16" r="14" fill="none" stroke="#F5A623" stroke-width="1.5" stroke-dasharray="4 2.5"/>
@@ -64,104 +44,202 @@ import { extractApiError } from '../../../core/utils/api-error';
             <polygon points="16,28 18,25 16,22 14,25" fill="#F5A623" opacity=".7"/>
           </svg>
           <span class="brand-name">{{ 'common.appTitle' | translate }}</span>
+          <div class="hero-rule"></div>
+        </div>
+      </aside>
+
+      <!-- Right: form panel -->
+      <main class="auth-panel">
+        <div class="auth-topbar">
+          <a routerLink="/landing" class="back-link">
+            <svg class="back-arrow" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M10 3L5 8L10 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            {{ 'auth.register.backToHome' | translate }}
+          </a>
+          <div class="lang-toggle" role="group" aria-label="Language / Idioma">
+            <button class="lang-btn" [class.lang-btn--active]="currentLang() === 'es'"
+              (click)="setLang('es')" lang="es" [attr.aria-pressed]="currentLang() === 'es'">
+              {{ 'common.langEs' | translate }}
+            </button>
+            <span class="lang-sep" aria-hidden="true">/</span>
+            <button class="lang-btn" [class.lang-btn--active]="currentLang() === 'en'"
+              (click)="setLang('en')" lang="en" [attr.aria-pressed]="currentLang() === 'en'">
+              {{ 'common.langEn' | translate }}
+            </button>
+          </div>
         </div>
 
-        <mat-card class="auth-card">
-          <div class="card-accent-bar"></div>
-          <div class="card-header">
-            <h1 class="card-title">{{ 'auth.register.title' | translate }}</h1>
-            <p class="card-subtitle">{{ 'auth.register.subtitle' | translate }}</p>
-          </div>
+        <div class="form-wrap">
+          <div class="form-pip"></div>
+          <h1 class="form-title">{{ 'auth.register.title' | translate }}</h1>
+          <p class="form-subtitle">{{ 'auth.register.subtitle' | translate }}</p>
 
-          <mat-card-content>
-            <form [formGroup]="form" (ngSubmit)="submit()">
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>{{ 'auth.register.displayNameLabel' | translate }}</mat-label>
-                <mat-icon matPrefix class="field-icon">person_outline</mat-icon>
-                <input matInput formControlName="displayName" autocomplete="name" />
-                @if (form.get('displayName')?.hasError('required')) {
-                  <mat-error>{{ 'auth.validation.displayNameRequired' | translate }}</mat-error>
-                }
-              </mat-form-field>
-
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>{{ 'auth.register.emailLabel' | translate }}</mat-label>
-                <mat-icon matPrefix class="field-icon">mail_outline</mat-icon>
-                <input matInput formControlName="email" type="email" autocomplete="email" />
-                @if (form.get('email')?.hasError('required')) {
-                  <mat-error>{{ 'auth.validation.emailRequired' | translate }}</mat-error>
-                } @else if (form.get('email')?.hasError('email')) {
-                  <mat-error>{{ 'auth.validation.emailInvalid' | translate }}</mat-error>
-                }
-              </mat-form-field>
-
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>{{ 'auth.register.passwordLabel' | translate }}</mat-label>
-                <mat-icon matPrefix class="field-icon">lock_outline</mat-icon>
-                <input matInput formControlName="password"
-                  [type]="showPassword() ? 'text' : 'password'"
-                  autocomplete="new-password" />
-                <button mat-icon-button matSuffix type="button"
-                  (click)="showPassword.set(!showPassword())"
-                  [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'">
-                  <mat-icon>{{ showPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
-                </button>
-                @if (form.get('password')?.hasError('required')) {
-                  <mat-error>{{ 'auth.validation.passwordRequired' | translate }}</mat-error>
-                } @else if (form.get('password')?.hasError('minlength')) {
-                  <mat-error>{{ 'auth.validation.passwordMinLength' | translate }}</mat-error>
-                }
-                @if (!form.get('password')?.hasError('required')) {
-                  <mat-hint>{{ 'auth.validation.passwordHint' | translate }}</mat-hint>
-                }
-              </mat-form-field>
-
-              @if (error()) {
-                <p class="error-message" role="alert">
-                  <mat-icon class="error-icon">error_outline</mat-icon>
-                  {{ error() }}
-                </p>
+          <form [formGroup]="form" (ngSubmit)="submit()">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>{{ 'auth.register.displayNameLabel' | translate }}</mat-label>
+              <mat-icon matPrefix class="field-icon">person_outline</mat-icon>
+              <input matInput formControlName="displayName" autocomplete="name" />
+              @if (form.get('displayName')?.hasError('required')) {
+                <mat-error>{{ 'auth.validation.displayNameRequired' | translate }}</mat-error>
               }
+            </mat-form-field>
 
-              <button mat-flat-button class="full-width submit-btn" type="submit" [disabled]="loading()">
-                @if (loading()) {
-                  <mat-spinner diameter="20" />
-                } @else {
-                  {{ 'auth.register.submitBtn' | translate }}
-                }
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>{{ 'auth.register.emailLabel' | translate }}</mat-label>
+              <mat-icon matPrefix class="field-icon">mail_outline</mat-icon>
+              <input matInput formControlName="email" type="email" autocomplete="email" />
+              @if (form.get('email')?.hasError('required')) {
+                <mat-error>{{ 'auth.validation.emailRequired' | translate }}</mat-error>
+              } @else if (form.get('email')?.hasError('email')) {
+                <mat-error>{{ 'auth.validation.emailInvalid' | translate }}</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>{{ 'auth.register.passwordLabel' | translate }}</mat-label>
+              <mat-icon matPrefix class="field-icon">lock_outline</mat-icon>
+              <input matInput formControlName="password"
+                [type]="showPassword() ? 'text' : 'password'"
+                autocomplete="new-password" />
+              <button mat-icon-button matSuffix type="button"
+                (click)="showPassword.set(!showPassword())"
+                [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'">
+                <mat-icon>{{ showPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
               </button>
-            </form>
-          </mat-card-content>
+              @if (form.get('password')?.hasError('required')) {
+                <mat-error>{{ 'auth.validation.passwordRequired' | translate }}</mat-error>
+              } @else if (form.get('password')?.hasError('minlength')) {
+                <mat-error>{{ 'auth.validation.passwordMinLength' | translate }}</mat-error>
+              }
+              @if (!form.get('password')?.hasError('required')) {
+                <mat-hint>{{ 'auth.validation.passwordHint' | translate }}</mat-hint>
+              }
+            </mat-form-field>
 
-          <mat-card-actions>
-            <p class="switch-text">
-              {{ 'auth.register.loginLink' | translate }}
-              <a routerLink="/auth/login" class="switch-link">{{ 'auth.register.loginLinkAction' | translate }}</a>
-            </p>
-          </mat-card-actions>
-        </mat-card>
-      </div>
+            @if (error()) {
+              <p class="error-message" role="alert">
+                <mat-icon class="error-icon">error_outline</mat-icon>
+                {{ error() }}
+              </p>
+            }
+
+            <button mat-flat-button class="full-width submit-btn" type="submit" [disabled]="loading()">
+              @if (loading()) {
+                <mat-spinner diameter="20" />
+              } @else {
+                {{ 'auth.register.submitBtn' | translate }}
+              }
+            </button>
+          </form>
+
+          <p class="switch-text">
+            {{ 'auth.register.loginLink' | translate }}
+            <a routerLink="/auth/login" class="switch-link">{{ 'auth.register.loginLinkAction' | translate }}</a>
+          </p>
+        </div>
+      </main>
     </div>
   `,
   styles: [`
     .auth-page {
       min-height: 100vh;
       display: flex;
+      background: #0D1B2E;
+      color: #fff;
+    }
+
+    /* ── Left: stadium hero ── */
+    .auth-hero {
+      flex: 0 0 52%;
+      position: relative;
+      background: url('/assets/hero-banner.png') center / cover no-repeat;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(to right, rgba(7,26,61,.2) 0%, rgba(7,26,61,.6) 65%, #0D1B2E 100%),
+        linear-gradient(to bottom, rgba(0,0,0,.35) 0%, transparent 30%, rgba(0,0,0,.45) 100%);
+    }
+
+    .hero-body {
+      position: relative;
+      z-index: 1;
+      display: flex;
       flex-direction: column;
-      background-color: #071A3D;
-      background-image:
-        linear-gradient(to bottom, rgba(7,26,61,.72) 0%, rgba(7,26,61,.58) 50%, rgba(7,26,61,.82) 100%),
-        url('/assets/hero-banner.png');
-      background-size: cover;
-      background-position: center;
-      color: var(--c-on-primary);
+      align-items: center;
+      gap: 18px;
+      padding: 0 40px;
+      animation: authFadeUp .6s ease both;
+    }
+
+    .brand-icon {
+      width: 56px;
+      height: 56px;
+      flex-shrink: 0;
+      filter: drop-shadow(0 0 24px rgba(245,166,35,.45));
+    }
+
+    .brand-name {
+      font-family: var(--f-display);
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #fff;
+      text-shadow: 0 2px 24px rgba(0,0,0,.65);
+      white-space: nowrap;
+    }
+
+    .hero-rule {
+      width: 56px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #F5A623 40%, #F5A623 60%, transparent);
+      border-radius: 1px;
+    }
+
+    /* ── Right: form panel ── */
+    .auth-panel {
+      flex: 1;
+      min-width: 0;
+      background: #0D1B2E;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+
+      --mdc-outlined-text-field-label-text-color: rgba(255,255,255,.45);
+      --mdc-outlined-text-field-hover-label-text-color: rgba(255,255,255,.7);
+      --mdc-outlined-text-field-focus-label-text-color: #F5A623;
+      --mdc-outlined-text-field-disabled-label-text-color: rgba(255,255,255,.25);
+      --mdc-outlined-text-field-input-text-color: rgba(255,255,255,.92);
+      --mdc-outlined-text-field-input-text-placeholder-color: rgba(255,255,255,.25);
+      --mdc-outlined-text-field-caret-color: #F5A623;
+      --mdc-outlined-text-field-outline-color: rgba(255,255,255,.15);
+      --mdc-outlined-text-field-hover-outline-color: rgba(255,255,255,.35);
+      --mdc-outlined-text-field-focus-outline-color: #F5A623;
+      --mdc-outlined-text-field-error-outline-color: #ff6b6b;
+      --mdc-outlined-text-field-error-label-text-color: #ff6b6b;
+      --mdc-outlined-text-field-error-focus-label-text-color: #ff6b6b;
+      --mdc-outlined-text-field-error-hover-label-text-color: #ff6b6b;
+      --mdc-outlined-text-field-container-shape: 10px;
+      --mdc-outlined-text-field-input-text-size: 0.95rem;
+      --mdc-outlined-text-field-label-text-size: 0.88rem;
+      --mat-form-field-subscript-text-line-height: 1.4;
+      --mat-form-field-error-text-color: #ff6b6b;
+      --mat-form-field-hint-text-color: rgba(255,255,255,.38);
     }
 
     .auth-topbar {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: var(--sp-5) var(--sp-8);
+      padding: 20px 40px;
       flex-shrink: 0;
     }
 
@@ -170,141 +248,120 @@ import { extractApiError } from '../../../core/utils/api-error';
       align-items: center;
       gap: 6px;
       font-family: var(--f-body);
-      font-size: var(--fs-sm);
+      font-size: .82rem;
       font-weight: 500;
-      color: rgba(255,255,255,.45);
+      color: rgba(255,255,255,.38);
       text-decoration: none;
       letter-spacing: .3px;
-      transition: color var(--trans-f);
+      transition: color .18s ease;
     }
 
-    .back-link:hover { color: rgba(255,255,255,.85); }
+    .back-link:hover { color: rgba(255,255,255,.78); }
     .back-arrow { width: 16px; height: 16px; flex-shrink: 0; }
 
     .lang-toggle {
       display: flex;
       align-items: center;
-      gap: var(--sp-2);
-      background: rgba(255,255,255,.07);
-      border: 1px solid rgba(255,255,255,.14);
-      border-radius: var(--r-full);
-      padding: 5px var(--sp-3);
+      gap: 8px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 100px;
+      padding: 5px 12px;
     }
 
     .lang-btn {
       font-family: var(--f-display);
-      font-size: .78rem;
+      font-size: .75rem;
       font-weight: 700;
       letter-spacing: 1.2px;
-      color: rgba(255,255,255,.45);
+      color: rgba(255,255,255,.38);
       background: none;
       border: none;
       cursor: pointer;
       padding: 2px 4px;
-      border-radius: var(--r-xs);
-      transition: color var(--trans-f);
+      border-radius: 4px;
+      transition: color .18s ease;
       line-height: 1;
     }
 
-    .lang-btn:hover { color: rgba(255,255,255,.8); }
-    .lang-btn--active { color: var(--c-accent) !important; }
-    .lang-btn:focus-visible { outline: 2px solid var(--c-accent); outline-offset: 2px; }
-    .lang-sep { color: rgba(255,255,255,.2); font-size: .7rem; user-select: none; }
+    .lang-btn:hover { color: rgba(255,255,255,.75); }
+    .lang-btn--active { color: #F5A623 !important; }
+    .lang-btn:focus-visible { outline: 2px solid #F5A623; outline-offset: 2px; }
+    .lang-sep { color: rgba(255,255,255,.18); font-size: .7rem; user-select: none; }
 
-    .auth-center {
+    .form-wrap {
       flex: 1;
       display: flex;
       flex-direction: column;
-      align-items: center;
       justify-content: center;
-      padding: var(--sp-6) var(--sp-4) var(--sp-12);
-    }
-
-    .auth-brand {
-      display: flex;
-      align-items: center;
-      gap: var(--sp-3);
-      margin-bottom: var(--sp-7);
-      animation: authFadeUp .5s ease both;
-    }
-
-    .brand-icon { width: 36px; height: 36px; flex-shrink: 0; }
-
-    .brand-name {
-      font-family: var(--f-display);
-      font-size: 1.6rem;
-      font-weight: 800;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: #fff;
-    }
-
-    .auth-card {
+      padding: 24px 48px 48px;
+      max-width: 420px;
       width: 100%;
-      max-width: 440px;
-      background: var(--c-surface) !important;
-      border: 1px solid rgba(255,255,255,.1) !important;
-      box-shadow: 0 32px 80px rgba(0,0,0,.6), 0 4px 20px rgba(0,0,0,.35) !important;
-      border-radius: var(--r-lg) !important;
-      overflow: hidden !important;
-      animation: authFadeUp .5s .1s ease both;
+      margin: 0 auto;
+      animation: authFadeUp .5s .12s ease both;
     }
 
-    .card-accent-bar {
+    .form-pip {
+      width: 32px;
       height: 3px;
-      background: linear-gradient(90deg, #C07010, #F5A623, #F0BB3A);
+      background: linear-gradient(90deg, #C07010, #F5A623);
+      border-radius: 2px;
+      margin-bottom: 14px;
     }
 
-    .card-header {
-      padding: var(--sp-6) var(--sp-6) var(--sp-4);
-      border-bottom: 1px solid var(--c-border);
-      margin-bottom: var(--sp-5);
-    }
-
-    .card-title {
+    .form-title {
       font-family: var(--f-display);
-      font-size: 1.65rem;
+      font-size: 1.75rem;
       font-weight: 800;
       letter-spacing: -.3px;
-      color: var(--c-text);
-      margin: 0 0 var(--sp-2);
+      color: #fff;
+      margin: 0 0 6px;
     }
 
-    .card-subtitle {
-      font-size: var(--fs-sm);
-      color: var(--c-text-2);
-      margin: 0;
+    .form-subtitle {
+      font-size: .875rem;
+      color: rgba(255,255,255,.48);
+      margin: 0 0 28px;
       line-height: 1.5;
     }
-
-    mat-card-content { padding: 0 var(--sp-6) var(--sp-2) !important; }
 
     .field-icon {
       font-size: 18px !important;
       width: 18px !important;
       height: 18px !important;
-      color: var(--c-text-2);
+      color: rgba(255,255,255,.35);
       margin-right: 4px;
+      transition: color .18s ease;
     }
 
-    .full-width { width: 100%; margin-bottom: var(--sp-4); }
+    .full-width { width: 100%; margin-bottom: 4px; }
+    .full-width.mat-focused .field-icon { color: #F5A623; }
+
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover,
+    input:-webkit-autofill:focus {
+      -webkit-box-shadow: 0 0 0 1000px #0D1B2E inset !important;
+      -webkit-text-fill-color: rgba(255,255,255,.92) !important;
+      caret-color: #F5A623;
+      transition: background-color 9999s ease-in-out 0s;
+    }
 
     .submit-btn {
-      margin-top: var(--sp-1);
+      margin-top: 8px;
       height: 48px;
-      background: var(--c-accent) !important;
+      background: #F5A623 !important;
       color: #071A3D !important;
       font-family: var(--f-display) !important;
       font-size: 1rem !important;
       font-weight: 700 !important;
       letter-spacing: 1.2px !important;
-      border-radius: var(--r-sm) !important;
-      transition: background .18s ease, box-shadow .18s ease, transform .18s ease !important;
+      border-radius: 8px !important;
+      transition: background .18s ease, box-shadow .18s ease, transform .12s ease !important;
     }
 
     .submit-btn:hover:not(:disabled) {
       background: #E09015 !important;
-      box-shadow: 0 6px 20px rgba(245,166,35,.4) !important;
+      box-shadow: 0 6px 20px rgba(245,166,35,.35) !important;
       transform: translateY(-1px);
     }
 
@@ -313,49 +370,57 @@ import { extractApiError } from '../../../core/utils/api-error';
     .error-message {
       display: flex;
       align-items: center;
-      gap: var(--sp-2);
-      color: var(--c-error);
-      font-size: var(--fs-sm);
-      margin-bottom: var(--sp-4);
-      padding: var(--sp-3) var(--sp-3);
-      background: var(--c-error-bg);
-      border-radius: var(--r-sm);
-      border-left: 3px solid var(--c-error);
+      gap: 8px;
+      color: #ff8080;
+      font-size: .85rem;
+      margin-bottom: 12px;
+      padding: 10px 12px;
+      background: rgba(255,107,107,.08);
+      border-radius: 8px;
+      border-left: 3px solid #ff6b6b;
       line-height: 1.4;
     }
 
     .error-icon { font-size: 18px !important; width: 18px !important; height: 18px !important; flex-shrink: 0; }
 
-    mat-card-actions {
-      padding: var(--sp-3) var(--sp-6) var(--sp-6) !important;
+    .switch-text {
+      font-size: .85rem;
+      color: rgba(255,255,255,.4);
+      margin: 20px 0 0;
       text-align: center;
     }
 
-    .switch-text {
-      font-size: var(--fs-sm);
-      color: var(--c-text-2);
-      margin: 0;
-    }
-
     .switch-link {
-      color: var(--c-accent-d);
+      color: #F5A623;
       font-weight: 600;
       text-decoration: none;
       margin-left: 4px;
-      transition: color var(--trans-f);
+      transition: color .18s ease;
     }
 
-    .switch-link:hover { color: var(--c-accent); text-decoration: underline; }
+    .switch-link:hover { color: #FFB83F; text-decoration: underline; }
 
     @keyframes authFadeUp {
-      from { opacity: 0; transform: translateY(20px); }
+      from { opacity: 0; transform: translateY(16px); }
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    @media (max-width: 480px) {
-      .auth-topbar { padding: var(--sp-4); }
-      .brand-name  { font-size: 1.3rem; }
-      .auth-card   { max-width: 100%; }
+    @media (max-width: 768px) {
+      .auth-page { flex-direction: column; }
+
+      .auth-hero {
+        flex: 0 0 200px;
+      }
+
+      .hero-overlay {
+        background: linear-gradient(to bottom, rgba(7,26,61,.3) 0%, #0D1B2E 100%);
+      }
+
+      .brand-icon { width: 40px; height: 40px; }
+      .brand-name { font-size: 1.5rem; letter-spacing: 2px; }
+
+      .auth-topbar { padding: 16px 20px; }
+      .form-wrap { padding: 24px 20px 40px; }
     }
   `],
 })

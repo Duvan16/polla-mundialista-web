@@ -33,7 +33,7 @@ type GoalForm = FormGroup<{
     TranslateModule,
   ],
   template: `
-    <div class="page-container">
+    <div class="page-container mdc-fields">
       <header class="page-header">
         <h2 class="page-title">{{ 'matches.title' | translate }}</h2>
       </header>
@@ -56,7 +56,7 @@ type GoalForm = FormGroup<{
         @for (group of groupNames(); track group) {
           <section class="group-section" [attr.aria-label]="'Group ' + group">
             <div class="group-header">
-              <span class="group-label">{{ group }}</span>
+              <span class="group-label">{{ ('common.groupPrefix' | translate) + ' ' + group.split(' ').pop() }}</span>
             </div>
             @for (match of groupedMatches()[group]; track match.matchId) {
               <mat-card class="match-card anim-fade-up" [class.is-finished]="match.isFinished">
@@ -111,7 +111,7 @@ type GoalForm = FormGroup<{
                         <input matInput type="number" min="0" formControlName="away"
                           [attr.aria-label]="match.awayTeam + ' goals'"/>
                       </mat-form-field>
-                      <button mat-flat-button color="primary" type="submit"
+                      <button mat-flat-button type="submit"
                         class="save-btn"
                         [disabled]="saving()[match.matchId]">
                         @if (saving()[match.matchId]) {
@@ -131,6 +131,19 @@ type GoalForm = FormGroup<{
     </div>
   `,
   styles: [`
+    /* ── MDC outlined-field tokens (matches login/register) ── */
+    .mdc-fields {
+      --mdc-outlined-text-field-focus-label-text-color:  #F5A623;
+      --mdc-outlined-text-field-hover-label-text-color:  var(--c-text-2);
+      --mdc-outlined-text-field-caret-color:             #F5A623;
+      --mdc-outlined-text-field-focus-outline-color:     #F5A623;
+      --mdc-outlined-text-field-hover-outline-color:     var(--c-border-s);
+      --mdc-outlined-text-field-container-shape:         10px;
+      --mdc-outlined-text-field-input-text-size:         0.95rem;
+      --mdc-outlined-text-field-label-text-size:         0.88rem;
+      --mat-form-field-subscript-text-line-height:       1.4;
+    }
+
     .page-header { margin-bottom: var(--sp-6); }
 
     /* Group */
@@ -179,7 +192,7 @@ type GoalForm = FormGroup<{
       gap: var(--sp-3); flex-wrap: wrap;
       padding-top: var(--sp-2);
     }
-    .score-field { width: 82px; }
+    .score-field { width: 106px; }
     .form-dash   { font-size: 1.3rem; color: var(--c-border-s); font-weight: 300; }
 
     .save-btn {
@@ -187,7 +200,19 @@ type GoalForm = FormGroup<{
       font-weight: 700 !important;
       letter-spacing: .8px !important;
       height: 40px !important;
+      background: #F5A623 !important;
+      color: #071A3D !important;
+      border-radius: 8px !important;
+      transition: background .18s ease, box-shadow .18s ease, transform .12s ease !important;
     }
+
+    .save-btn:hover:not(:disabled) {
+      background: #E09015 !important;
+      box-shadow: 0 4px 14px rgba(245,166,35,.35) !important;
+      transform: translateY(-1px);
+    }
+
+    .save-btn:disabled { opacity: .6; }
 
     /* Finished result row */
     .result-row {

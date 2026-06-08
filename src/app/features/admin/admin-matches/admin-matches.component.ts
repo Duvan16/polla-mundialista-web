@@ -30,8 +30,8 @@ import { extractApiError } from '../../../core/utils/api-error';
       <p class="warning">{{ 'admin.confirm.warning' | translate }}</p>
     </mat-dialog-content>
     <mat-dialog-actions align="end">
-      <button mat-button mat-dialog-close>{{ 'admin.confirm.cancel' | translate }}</button>
-      <button mat-flat-button color="warn" [mat-dialog-close]="true">{{ 'admin.confirm.save' | translate }}</button>
+      <button mat-button mat-dialog-close class="cancel-btn">{{ 'admin.confirm.cancel' | translate }}</button>
+      <button mat-flat-button class="confirm-save-btn" [mat-dialog-close]="true">{{ 'admin.confirm.save' | translate }}</button>
     </mat-dialog-actions>
   `,
   styles: [`
@@ -42,11 +42,38 @@ import { extractApiError } from '../../../core/utils/api-error';
       font-size: 2.4rem;
       font-weight: 800;
       text-align: center;
-      color: var(--c-primary);
+      color: #F5A623;
       margin: var(--sp-3) 0 var(--sp-2);
       letter-spacing: 2px;
     }
     .warning { font-size: var(--fs-sm); color: var(--c-text-muted); margin-top: var(--sp-2); }
+    mat-dialog-actions { gap: var(--sp-2) !important; padding: var(--sp-3) var(--sp-4) !important; }
+
+    .cancel-btn {
+      font-family: var(--f-display) !important;
+      font-weight: 600 !important;
+      letter-spacing: .5px !important;
+      color: var(--c-text-muted) !important;
+      border-radius: 8px !important;
+      padding: 0 var(--sp-4) !important;
+    }
+    .cancel-btn:hover {
+      background: var(--c-surface-2) !important;
+      color: var(--c-text) !important;
+    }
+
+    .confirm-save-btn {
+      background: #F5A623 !important;
+      color: #071A3D !important;
+      font-family: var(--f-display) !important;
+      font-weight: 700 !important;
+      letter-spacing: .8px !important;
+      border-radius: 8px !important;
+    }
+    .confirm-save-btn:hover {
+      background: #E09015 !important;
+      box-shadow: 0 4px 14px rgba(245,166,35,.35) !important;
+    }
   `],
 })
 export class ConfirmResultDialogComponent {
@@ -79,10 +106,10 @@ type GoalForm = FormGroup<{
     TranslateModule,
   ],
   template: `
-    <div class="page-container">
+    <div class="page-container mdc-fields">
       <header class="admin-header">
         <h2 class="page-title">{{ 'admin.title' | translate }}</h2>
-        <span class="admin-badge">Admin</span>
+        <span class="admin-badge">{{ 'nav.admin' | translate }}</span>
       </header>
 
       @if (loading()) {
@@ -101,7 +128,7 @@ type GoalForm = FormGroup<{
         @for (group of groupNames(); track group) {
           <section class="group-section" [attr.aria-label]="'Group ' + group">
             <div class="group-header">
-              <span class="group-label">{{ group }}</span>
+              <span class="group-label">{{ ('common.groupPrefix' | translate) + ' ' + group.split(' ').pop() }}</span>
             </div>
 
             @for (match of groupedMatches()[group]; track match.matchId) {
@@ -147,7 +174,7 @@ type GoalForm = FormGroup<{
                             <mat-label>{{ 'admin.awayLabel' | translate }}</mat-label>
                             <input matInput type="number" min="0" formControlName="away" />
                           </mat-form-field>
-                          <button mat-stroked-button color="warn" type="submit"
+                          <button mat-flat-button type="submit" class="update-btn"
                             [disabled]="saving()[match.matchId] || matchForms[match.matchId].invalid">
                             @if (saving()[match.matchId]) { <mat-spinner diameter="16" /> }
                             @else { {{ 'admin.updateResult' | translate }} }
@@ -174,7 +201,7 @@ type GoalForm = FormGroup<{
                           <mat-label>{{ 'admin.awayGoals' | translate }}</mat-label>
                           <input matInput type="number" min="0" formControlName="away" />
                         </mat-form-field>
-                        <button mat-flat-button color="primary" type="submit"
+                        <button mat-flat-button type="submit"
                           class="save-btn"
                           [disabled]="saving()[match.matchId] || matchForms[match.matchId].invalid">
                           @if (saving()[match.matchId]) { <mat-spinner diameter="18" /> }
@@ -199,6 +226,19 @@ type GoalForm = FormGroup<{
     </div>
   `,
   styles: [`
+    /* ── MDC outlined-field tokens ── */
+    .mdc-fields {
+      --mdc-outlined-text-field-focus-label-text-color:  #F5A623;
+      --mdc-outlined-text-field-hover-label-text-color:  var(--c-text-2);
+      --mdc-outlined-text-field-caret-color:             #F5A623;
+      --mdc-outlined-text-field-focus-outline-color:     #F5A623;
+      --mdc-outlined-text-field-hover-outline-color:     var(--c-border-s);
+      --mdc-outlined-text-field-container-shape:         10px;
+      --mdc-outlined-text-field-input-text-size:         0.95rem;
+      --mdc-outlined-text-field-label-text-size:         0.88rem;
+      --mat-form-field-subscript-text-line-height:       1.4;
+    }
+
     /* ── Admin header ── */
     .admin-header {
       display: flex;
@@ -213,13 +253,13 @@ type GoalForm = FormGroup<{
       font-family: var(--f-display);
       font-size: var(--fs-xs);
       font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
+      letter-spacing: .6px;
       padding: 3px var(--sp-3);
       background: rgba(230,81,0,.12);
       color: var(--c-warn-text);
       border-radius: var(--r-full);
       border: 1px solid rgba(230,81,0,.25);
+      white-space: nowrap;
     }
 
     /* Groups */
@@ -293,7 +333,7 @@ type GoalForm = FormGroup<{
 
     .pending-row { display: flex; flex-direction: column; gap: var(--sp-2); }
 
-    .score-field { width: 92px; }
+    .score-field { width: 106px; }
     .form-dash   { font-size: 1.3rem; color: var(--c-border-s); }
 
     .save-btn {
@@ -301,7 +341,45 @@ type GoalForm = FormGroup<{
       font-weight: 700 !important;
       letter-spacing: .8px !important;
       height: 40px !important;
+      background: #F5A623 !important;
+      color: #071A3D !important;
+      border-radius: 8px !important;
+      transition: background .18s ease, box-shadow .18s ease, transform .12s ease !important;
     }
+
+    .save-btn:hover:not(:disabled) {
+      background: #E09015 !important;
+      box-shadow: 0 4px 14px rgba(245,166,35,.35) !important;
+      transform: translateY(-1px);
+    }
+
+    .save-btn:disabled { opacity: .6; }
+
+    .update-btn {
+      font-family: var(--f-display) !important;
+      font-weight: 700 !important;
+      letter-spacing: .8px !important;
+      height: 40px !important;
+      margin-left: var(--sp-3) !important;
+      background: rgba(245,166,35,.12) !important;
+      color: #C07010 !important;
+      border: 1.5px solid rgba(245,166,35,.45) !important;
+      border-radius: 8px !important;
+      transition: background .18s ease, box-shadow .18s ease, transform .12s ease !important;
+    }
+
+    .update-btn:hover:not(:disabled) {
+      background: rgba(245,166,35,.22) !important;
+      box-shadow: 0 4px 14px rgba(245,166,35,.2) !important;
+      transform: translateY(-1px);
+    }
+
+    .update-btn:disabled { opacity: .5; }
+
+    @media (prefers-color-scheme: dark) {
+      .update-btn { color: #F5A623 !important; }
+    }
+    body.dark-theme .update-btn { color: #F5A623 !important; }
 
     /* Inline error */
     .inline-error {
