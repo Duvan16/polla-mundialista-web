@@ -26,6 +26,10 @@ export class LanguageService {
 
   private resolveInitialLang(): AppLang {
     const stored = localStorage.getItem(STORAGE_KEY);
-    return (SUPPORTED as readonly string[]).includes(stored ?? '') ? (stored as AppLang) : DEFAULT_LANG;
+    if ((SUPPORTED as readonly string[]).includes(stored ?? '')) {
+      return stored as AppLang;
+    }
+    const browserLang = navigator.language?.split('-')[0];
+    return browserLang === 'es' ? 'es' : 'en';
   }
 }

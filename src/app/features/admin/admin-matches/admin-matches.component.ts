@@ -21,8 +21,12 @@ import { extractApiError } from '../../../core/utils/api-error';
   template: `
     <h2 mat-dialog-title>{{ 'admin.confirm.title' | translate }}</h2>
     <mat-dialog-content>
-      <p class="teams">{{ data.homeTeam }} <span class="vs">{{ 'common.vs' | translate }}</span> {{ data.awayTeam }}</p>
-      <p class="score">{{ data.homeGoals }} &ndash; {{ data.awayGoals }}</p>
+      <p class="teams">
+        {{ data.homeTeam }}
+        <span class="vs">{{ 'common.vs' | translate }}</span>
+        {{ data.awayTeam }}
+      </p>
+      <p class="score">{{ data.homeGoals }}&ensp;–&ensp;{{ data.awayGoals }}</p>
       <p class="warning">{{ 'admin.confirm.warning' | translate }}</p>
     </mat-dialog-content>
     <mat-dialog-actions align="end">
@@ -31,10 +35,18 @@ import { extractApiError } from '../../../core/utils/api-error';
     </mat-dialog-actions>
   `,
   styles: [`
-    .teams { font-size: 1rem; font-weight: 500; margin-bottom: 4px; }
-    .vs { color: #bbb; font-size: 0.8rem; }
-    .score { font-size: 2rem; font-weight: 700; text-align: center; color: #1565c0; margin: 8px 0 4px; }
-    .warning { font-size: 0.78rem; color: #999; margin-top: 4px; }
+    .teams { font-size: 1rem; font-weight: 600; margin-bottom: var(--sp-1); color: var(--c-text); }
+    .vs    { color: var(--c-text-muted); font-size: .8rem; margin: 0 var(--sp-2); }
+    .score {
+      font-family: var(--f-display);
+      font-size: 2.4rem;
+      font-weight: 800;
+      text-align: center;
+      color: var(--c-primary);
+      margin: var(--sp-3) 0 var(--sp-2);
+      letter-spacing: 2px;
+    }
+    .warning { font-size: var(--fs-sm); color: var(--c-text-muted); margin-top: var(--sp-2); }
   `],
 })
 export class ConfirmResultDialogComponent {
@@ -68,12 +80,17 @@ type GoalForm = FormGroup<{
   ],
   template: `
     <div class="page-container">
-      <h2 class="page-title">{{ 'admin.title' | translate }}</h2>
+      <header class="admin-header">
+        <h2 class="page-title">{{ 'admin.title' | translate }}</h2>
+        <span class="admin-badge">Admin</span>
+      </header>
 
       @if (loading()) {
-        <div class="center"><mat-spinner /></div>
+        <div class="center" role="status">
+          <mat-spinner diameter="40"></mat-spinner>
+        </div>
       } @else if (error()) {
-        <div class="error-state">
+        <div class="state-row error-state" role="alert">
           <mat-icon>error_outline</mat-icon>
           <span>{{ error() }}</span>
           <button mat-stroked-button (click)="loadMatches()">{{ 'admin.retry' | translate }}</button>
@@ -82,7 +99,7 @@ type GoalForm = FormGroup<{
         <p class="empty">{{ 'admin.empty' | translate }}</p>
       } @else {
         @for (group of groupNames(); track group) {
-          <section class="group-section">
+          <section class="group-section" [attr.aria-label]="'Group ' + group">
             <div class="group-header">
               <span class="group-label">{{ group }}</span>
             </div>
@@ -93,15 +110,17 @@ type GoalForm = FormGroup<{
 
                   <div class="match-header">
                     <div class="teams">
+                      <span class="team-badge" aria-hidden="true">{{ match.homeTeam.slice(0,3).toUpperCase() }}</span>
                       <span class="team">{{ match.homeTeam }}</span>
-                      <span class="vs">{{ 'common.vs' | translate }}</span>
+                      <span class="vs" aria-hidden="true">{{ 'common.vs' | translate }}</span>
                       <span class="team">{{ match.awayTeam }}</span>
+                      <span class="team-badge" aria-hidden="true">{{ match.awayTeam.slice(0,3).toUpperCase() }}</span>
                     </div>
-                    <div class="meta">
-                      <span class="date">{{ match.matchDate | date:'MMM d · HH:mm' }}</span>
+                    <div class="match-meta">
+                      <span class="match-date">{{ match.matchDate | date:'MMM d · HH:mm' }}</span>
                       @if (match.isFinished) {
-                        <span class="finished-badge">
-                          <mat-icon class="badge-icon">check_circle</mat-icon>
+                        <span class="chip chip-success finished-chip">
+                          <mat-icon class="chip-icon" aria-hidden="true">check_circle</mat-icon>
                           {{ 'admin.finished' | translate }}
                         </span>
                       }
@@ -110,10 +129,10 @@ type GoalForm = FormGroup<{
 
                   @if (match.isFinished) {
                     <div class="result-display">
-                      <div class="result-score">
+                      <div class="result-score-box">
                         <span class="result-label">{{ 'admin.finalScore' | translate }}</span>
                         <span class="result-value">
-                          {{ match.actualHomeGoals }} &ndash; {{ match.actualAwayGoals }}
+                          {{ match.actualHomeGoals }}&ensp;–&ensp;{{ match.actualAwayGoals }}
                         </span>
                       </div>
                       <div class="result-form">
@@ -123,22 +142,19 @@ type GoalForm = FormGroup<{
                             <mat-label>{{ 'admin.homeLabel' | translate }}</mat-label>
                             <input matInput type="number" min="0" formControlName="home" />
                           </mat-form-field>
-                          <span class="form-dash">&ndash;</span>
+                          <span class="form-dash" aria-hidden="true">–</span>
                           <mat-form-field appearance="outline" class="score-field">
                             <mat-label>{{ 'admin.awayLabel' | translate }}</mat-label>
                             <input matInput type="number" min="0" formControlName="away" />
                           </mat-form-field>
                           <button mat-stroked-button color="warn" type="submit"
                             [disabled]="saving()[match.matchId] || matchForms[match.matchId].invalid">
-                            @if (saving()[match.matchId]) {
-                              <mat-spinner diameter="16" />
-                            } @else {
-                              {{ 'admin.updateResult' | translate }}
-                            }
+                            @if (saving()[match.matchId]) { <mat-spinner diameter="16" /> }
+                            @else { {{ 'admin.updateResult' | translate }} }
                           </button>
                         </form>
                         @if (saveError()[match.matchId]) {
-                          <div class="inline-error">
+                          <div class="inline-error" role="alert">
                             <mat-icon>warning</mat-icon>
                             {{ saveError()[match.matchId] }}
                           </div>
@@ -153,22 +169,20 @@ type GoalForm = FormGroup<{
                           <mat-label>{{ 'admin.homeGoals' | translate }}</mat-label>
                           <input matInput type="number" min="0" formControlName="home" />
                         </mat-form-field>
-                        <span class="form-dash">&ndash;</span>
+                        <span class="form-dash" aria-hidden="true">–</span>
                         <mat-form-field appearance="outline" class="score-field">
                           <mat-label>{{ 'admin.awayGoals' | translate }}</mat-label>
                           <input matInput type="number" min="0" formControlName="away" />
                         </mat-form-field>
                         <button mat-flat-button color="primary" type="submit"
+                          class="save-btn"
                           [disabled]="saving()[match.matchId] || matchForms[match.matchId].invalid">
-                          @if (saving()[match.matchId]) {
-                            <mat-spinner diameter="18" />
-                          } @else {
-                            {{ 'admin.saveResult' | translate }}
-                          }
+                          @if (saving()[match.matchId]) { <mat-spinner diameter="18" /> }
+                          @else { {{ 'admin.saveResult' | translate }} }
                         </button>
                       </form>
                       @if (saveError()[match.matchId]) {
-                        <div class="inline-error">
+                        <div class="inline-error" role="alert">
                           <mat-icon>warning</mat-icon>
                           {{ saveError()[match.matchId] }}
                         </div>
@@ -185,63 +199,134 @@ type GoalForm = FormGroup<{
     </div>
   `,
   styles: [`
-    .page-container { max-width: 760px; margin: 0 auto; padding: 24px 16px; }
-    .page-title { font-size: 1.4rem; font-weight: 600; margin-bottom: 24px; }
-
-    .group-section { margin-bottom: 32px; }
-    .group-header { margin-bottom: 12px; }
-    .group-label {
-      font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
-      letter-spacing: 1.5px; color: #888;
-      padding: 3px 10px; background: #f0f0f0; border-radius: 4px;
+    /* ── Admin header ── */
+    .admin-header {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-3);
+      margin-bottom: var(--sp-6);
     }
 
-    .match-card { margin-bottom: 10px; }
-    .match-card.is-finished { border-left: 3px solid #2e7d32; }
+    .admin-header .page-title { margin: 0; }
 
+    .admin-badge {
+      font-family: var(--f-display);
+      font-size: var(--fs-xs);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      padding: 3px var(--sp-3);
+      background: rgba(230,81,0,.12);
+      color: var(--c-warn-text);
+      border-radius: var(--r-full);
+      border: 1px solid rgba(230,81,0,.25);
+    }
+
+    /* Groups */
+    .group-section { margin-bottom: var(--sp-8); }
+    .group-header  { margin-bottom: var(--sp-3); }
+
+    /* Match card */
+    .match-card {
+      margin-bottom: var(--sp-3);
+      transition: box-shadow var(--trans-m);
+    }
+    .match-card:hover { box-shadow: var(--sh-lg) !important; }
+    .match-card.is-finished { border-left: 3px solid var(--c-success) !important; }
+
+    /* Match header */
     .match-header {
       display: flex; justify-content: space-between; align-items: center;
-      margin-bottom: 14px; flex-wrap: wrap; gap: 8px;
+      margin-bottom: var(--sp-4); flex-wrap: wrap; gap: var(--sp-2);
     }
-    .teams { display: flex; align-items: center; gap: 10px; }
-    .team { font-weight: 500; font-size: 0.95rem; }
-    .vs { font-size: 0.78rem; color: #bbb; }
-    .meta { display: flex; align-items: center; gap: 8px; }
-    .date { font-size: 0.8rem; color: #999; }
 
-    .finished-badge {
-      display: flex; align-items: center; gap: 4px;
-      font-size: 0.72rem; font-weight: 600;
-      color: #2e7d32; background: #e8f5e9;
-      padding: 2px 8px; border-radius: 10px;
+    .teams { display: flex; align-items: center; gap: var(--sp-2); }
+    .team  { font-weight: 600; font-size: var(--fs-base); color: var(--c-text); }
+    .vs    { font-size: var(--fs-xs); font-weight: 700; text-transform: uppercase;
+             letter-spacing: 1px; color: var(--c-text-muted); }
+
+    .match-meta { display: flex; align-items: center; gap: var(--sp-2); }
+    .match-date { font-size: var(--fs-sm); color: var(--c-text-muted); }
+
+    .chip-icon { font-size: 13px; width: 13px; height: 13px; }
+
+    /* Finished display */
+    .result-display {
+      display: flex; align-items: flex-start;
+      gap: var(--sp-6); flex-wrap: wrap;
+      padding-top: var(--sp-3);
+      border-top: 1px solid var(--c-border);
     }
-    .badge-icon { font-size: 14px; width: 14px; height: 14px; }
 
-    .result-display { display: flex; align-items: flex-start; gap: 32px; flex-wrap: wrap; }
-    .result-score {
-      display: flex; flex-direction: column; gap: 2px; min-width: 100px;
-      background: #e8f5e9; border-radius: 8px; padding: 10px 20px; text-align: center;
+    .result-score-box {
+      display: flex; flex-direction: column; gap: 3px;
+      min-width: 110px;
+      background: var(--c-success-bg);
+      border-radius: var(--r-md);
+      padding: var(--sp-3) var(--sp-5);
+      text-align: center;
+      border: 1px solid rgba(26,138,71,.18);
     }
-    .result-label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.5px; color: #888; }
-    .result-value { font-size: 1.6rem; font-weight: 700; color: #2e7d32; line-height: 1.2; }
 
-    .result-form { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; flex: 1; }
-    .pending-row { display: flex; flex-direction: column; gap: 8px; }
-    .score-field { width: 90px; }
-    .form-dash { font-size: 1.2rem; color: #ccc; }
+    .result-label {
+      font-size: var(--fs-xs);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--c-success);
+      font-weight: 600;
+    }
 
+    .result-value {
+      font-family: var(--f-display);
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--c-success);
+      line-height: 1.1;
+      letter-spacing: 2px;
+    }
+
+    /* Forms */
+    .result-form {
+      display: flex; align-items: center;
+      gap: var(--sp-3); flex-wrap: wrap; flex: 1;
+    }
+
+    .pending-row { display: flex; flex-direction: column; gap: var(--sp-2); }
+
+    .score-field { width: 92px; }
+    .form-dash   { font-size: 1.3rem; color: var(--c-border-s); }
+
+    .save-btn {
+      font-family: var(--f-display) !important;
+      font-weight: 700 !important;
+      letter-spacing: .8px !important;
+      height: 40px !important;
+    }
+
+    /* Inline error */
     .inline-error {
-      display: flex; align-items: center; gap: 6px;
-      color: #c62828; font-size: 0.82rem; padding-top: 2px;
+      display: flex; align-items: center; gap: var(--sp-2);
+      color: var(--c-error);
+      font-size: var(--fs-sm);
+      padding-top: var(--sp-1);
     }
-    .inline-error mat-icon { font-size: 16px; width: 16px; height: 16px; }
+    .inline-error mat-icon { font-size: 15px; width: 15px; height: 15px; }
 
-    .center { display: flex; justify-content: center; padding: 60px; }
-    .error-state {
-      display: flex; align-items: center; gap: 10px;
-      color: #c62828; padding: 16px 0;
+    /* States */
+    .center { display: flex; justify-content: center; padding: var(--sp-16) var(--sp-6); }
+
+    .state-row {
+      display: flex; align-items: center; gap: var(--sp-3);
+      padding: var(--sp-4) 0;
     }
-    .empty { color: #aaa; padding: 24px 0; }
+    .error-state { color: var(--c-error); }
+
+    .empty { color: var(--c-text-muted); padding: var(--sp-6) 0; }
+
+    @media (max-width: 480px) {
+      .result-display { flex-direction: column; }
+      .result-form { flex-direction: column; align-items: flex-start; }
+    }
   `],
 })
 export class AdminMatchesComponent implements OnInit {

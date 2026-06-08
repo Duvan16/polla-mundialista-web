@@ -30,28 +30,28 @@ export interface HistoryDialogData {
   ],
   template: `
     <h2 mat-dialog-title>
-      <mat-icon class="title-icon">person</mat-icon>
+      <mat-icon class="title-icon" aria-hidden="true">bar_chart</mat-icon>
       {{ data.displayName }}{{ 'leaderboard.history.titleSuffix' | translate }}
     </h2>
 
     <mat-dialog-content>
       @if (loading()) {
-        <div class="center">
-          <mat-spinner diameter="48" />
+        <div class="center" role="status" aria-live="polite">
+          <mat-spinner diameter="44" />
           <p class="loading-text">{{ 'leaderboard.history.loadingText' | translate }}</p>
         </div>
       } @else if (error()) {
-        <div class="error-state">
+        <div class="state-col error-state" role="alert">
           <mat-icon>error_outline</mat-icon>
           <p>{{ error() }}</p>
         </div>
       } @else if (history().length === 0) {
-        <div class="empty-state">
+        <div class="state-col empty-state">
           <mat-icon>sports_soccer</mat-icon>
           <p>{{ 'leaderboard.history.empty' | translate }}</p>
         </div>
       } @else {
-        <table mat-table [dataSource]="history()" class="history-table">
+        <table mat-table [dataSource]="history()" class="history-table" aria-label="Prediction history">
           <ng-container matColumnDef="match">
             <th mat-header-cell *matHeaderCellDef>{{ 'leaderboard.history.matchCol' | translate }}</th>
             <td mat-cell *matCellDef="let h">
@@ -63,7 +63,7 @@ export interface HistoryDialogData {
           <ng-container matColumnDef="prediction">
             <th mat-header-cell *matHeaderCellDef>{{ 'leaderboard.history.predictionCol' | translate }}</th>
             <td mat-cell *matCellDef="let h" class="score-cell">
-              {{ h.predictedHomeGoals }} – {{ h.predictedAwayGoals }}
+              {{ h.predictedHomeGoals }}&thinsp;–&thinsp;{{ h.predictedAwayGoals }}
             </td>
           </ng-container>
 
@@ -71,7 +71,7 @@ export interface HistoryDialogData {
             <th mat-header-cell *matHeaderCellDef>{{ 'leaderboard.history.resultCol' | translate }}</th>
             <td mat-cell *matCellDef="let h" class="score-cell">
               @if (h.isFinished) {
-                {{ h.actualHomeGoals }} – {{ h.actualAwayGoals }}
+                {{ h.actualHomeGoals }}&thinsp;–&thinsp;{{ h.actualAwayGoals }}
               } @else {
                 <span class="pending">{{ 'leaderboard.history.pending' | translate }}</span>
               }
@@ -82,7 +82,7 @@ export interface HistoryDialogData {
             <th mat-header-cell *matHeaderCellDef>{{ 'leaderboard.history.ptsCol' | translate }}</th>
             <td mat-cell *matCellDef="let h">
               @if (h.pointsAwarded != null) {
-                <span class="points-chip" [class.exact]="isExact(h)" [class.partial]="isPartial(h)">
+                <span class="pts-chip" [class.exact]="isExact(h)" [class.partial]="isPartial(h)">
                   {{ h.pointsAwarded }}
                 </span>
               } @else {
@@ -92,13 +92,13 @@ export interface HistoryDialogData {
           </ng-container>
 
           <tr mat-header-row *matHeaderRowDef="columns; sticky: true"></tr>
-          <tr mat-row *matRowDef="let row; columns: columns"></tr>
+          <tr mat-row *matRowDef="let row; columns: columns" class="hist-row"></tr>
         </table>
 
         <div class="summary-row">
           <span class="summary-label">{{ 'leaderboard.history.totalPoints' | translate }}</span>
           <span class="summary-value">{{ totalPoints() }}</span>
-          <span class="summary-label ml">{{ 'leaderboard.history.exactHits' | translate }}</span>
+          <span class="summary-label sep">{{ 'leaderboard.history.exactHits' | translate }}</span>
           <span class="summary-value">{{ exactHits() }}</span>
         </div>
       }
@@ -112,76 +112,102 @@ export interface HistoryDialogData {
     h2[mat-dialog-title] {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: var(--sp-2);
       margin: 0;
+      font-family: var(--f-display) !important;
+      font-weight: 700 !important;
+      font-size: 1.3rem !important;
+      color: var(--c-text) !important;
     }
-    .title-icon { color: #3f51b5; }
+
+    .title-icon { color: var(--c-primary) !important; }
 
     mat-dialog-content {
-      min-width: 520px;
+      min-width: min(520px, 90vw);
       max-height: 480px;
-      padding: 0 24px;
+      padding: 0 var(--sp-6);
     }
 
+    /* States */
     .center {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 48px 0;
-      gap: 16px;
+      display: flex; flex-direction: column; align-items: center;
+      padding: var(--sp-12) 0; gap: var(--sp-4);
     }
-    .loading-text { color: #666; margin: 0; }
+    .loading-text { color: var(--c-text-muted); margin: 0; font-size: var(--fs-sm); }
 
-    .error-state, .empty-state {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-      padding: 48px 0;
-      color: #888;
+    .state-col {
+      display: flex; flex-direction: column;
+      align-items: center; gap: var(--sp-2);
+      padding: var(--sp-12) 0; color: var(--c-text-muted);
     }
-    .error-state mat-icon, .empty-state mat-icon {
-      font-size: 48px;
-      width: 48px;
-      height: 48px;
-    }
-    .error-state { color: #c62828; }
+    .state-col mat-icon { font-size: 48px; width: 48px; height: 48px; }
+    .error-state { color: var(--c-error) !important; }
 
-    .history-table {
-      width: 100%;
-      margin-top: 8px;
-    }
+    /* Table */
+    .history-table { width: 100%; margin-top: var(--sp-2); }
 
-    .match-label { display: block; font-weight: 500; }
-    .match-date { display: block; font-size: 12px; color: #888; }
+    .hist-row { transition: background var(--trans-f); }
+    .hist-row:hover { background: var(--c-surface-2) !important; }
 
-    .score-cell { font-family: monospace; font-size: 15px; font-weight: 600; }
+    .match-label { display: block; font-weight: 600; font-size: var(--fs-base); color: var(--c-text); }
+    .match-date  { display: block; font-size: var(--fs-xs); color: var(--c-text-muted); margin-top: 2px; }
 
-    .pending { color: #aaa; font-size: 13px; }
-
-    .points-chip {
-      display: inline-block;
-      padding: 2px 10px;
-      border-radius: 12px;
+    .score-cell {
+      font-family: var(--f-display) !important;
+      font-size: 1.05rem;
       font-weight: 700;
-      font-size: 13px;
-      background: #e0e0e0;
-      color: #333;
+      color: var(--c-text);
+      letter-spacing: .5px;
     }
-    .points-chip.exact { background: #c8e6c9; color: #1b5e20; }
-    .points-chip.partial { background: #fff9c4; color: #f57f17; }
 
-    .summary-row {
-      display: flex;
+    .pending { color: var(--c-text-muted); font-size: var(--fs-sm); }
+
+    /* Points chip */
+    .pts-chip {
+      display: inline-flex;
       align-items: center;
-      gap: 8px;
-      padding: 12px 0 4px;
-      border-top: 1px solid #e0e0e0;
-      margin-top: 8px;
+      justify-content: center;
+      min-width: 36px;
+      padding: 2px var(--sp-3);
+      border-radius: var(--r-full);
+      font-family: var(--f-display);
+      font-weight: 700;
+      font-size: .85rem;
+      background: var(--c-surface-2);
+      color: var(--c-text-2);
+      border: 1px solid var(--c-border);
     }
-    .summary-label { color: #666; font-size: 14px; }
-    .summary-value { font-weight: 700; font-size: 16px; color: #3f51b5; }
-    .ml { margin-left: 24px; }
+
+    .pts-chip.exact {
+      background: var(--c-success-bg);
+      color: var(--c-success);
+      border-color: rgba(26,138,71,.2);
+    }
+
+    .pts-chip.partial {
+      background: rgba(245,166,35,.12);
+      color: var(--c-accent-d);
+      border-color: rgba(245,166,35,.3);
+    }
+
+    /* Summary */
+    .summary-row {
+      display: flex; align-items: center; gap: var(--sp-2);
+      padding: var(--sp-3) 0 var(--sp-1);
+      border-top: 1px solid var(--c-border);
+      margin-top: var(--sp-2);
+      flex-wrap: wrap;
+    }
+
+    .summary-label { color: var(--c-text-muted); font-size: var(--fs-sm); }
+    .sep { margin-left: var(--sp-5); }
+
+    .summary-value {
+      font-family: var(--f-display);
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--c-primary);
+    }
   `],
 })
 export class UserHistoryDialogComponent implements OnInit {

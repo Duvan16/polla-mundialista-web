@@ -1,5 +1,5 @@
 import { HttpInterceptorFn, HttpErrorResponse, HttpRequest, HttpHandlerFn } from '@angular/common/http';
-import { inject } from '@angular/core';
+import { inject, Injector } from '@angular/core';
 import { BehaviorSubject, catchError, filter, switchMap, take, throwError } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslateService } from '@ngx-translate/core';
@@ -22,7 +22,7 @@ function isAuthEndpoint(url: string): boolean {
 export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
   const auth = inject(AuthService);
   const snackBar = inject(MatSnackBar);
-  const translate = inject(TranslateService);
+  const injector = inject(Injector);
   const token = auth.token();
 
   const authReq = token && !isAuthEndpoint(req.url)
@@ -34,6 +34,7 @@ export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
       if (!(err instanceof HttpErrorResponse)) return throwError(() => err);
 
       if (err.status === 429 && isAuthEndpoint(req.url)) {
+        const translate = injector.get(TranslateService);
         snackBar.open(translate.instant('auth.rateLimit'), translate.instant('common.dismiss'), { duration: 6000 });
         return throwError(() => err);
       }

@@ -21,22 +21,26 @@
   },
   "auth": {
     "login": {
-      "title": "Sign In",
-      "subtitle": "Polla Mundialista",
+      "pageTitle": "Sign In · Polla Mundialista",
+      "title": "Welcome back",
+      "subtitle": "Enter your credentials to continue",
       "emailLabel": "Email",
       "passwordLabel": "Password",
       "submitBtn": "Sign In",
       "registerLink": "Don't have an account? Register",
+      "backToHome": "← Back to home",
       "errorFallback": "Login failed. Please try again."
     },
     "register": {
-      "title": "Create Account",
-      "subtitle": "Polla Mundialista",
+      "pageTitle": "Create Account · Polla Mundialista",
+      "title": "Join the group",
+      "subtitle": "Create your account to start predicting",
       "displayNameLabel": "Display Name",
       "emailLabel": "Email",
       "passwordLabel": "Password",
       "submitBtn": "Register",
       "loginLink": "Already have an account? Sign in",
+      "backToHome": "← Back to home",
       "errorFallback": "Registration failed. Please try again."
     },
     "validation": {
@@ -47,6 +51,62 @@
       "displayNameRequired": "Display name is required"
     },
     "rateLimit": "Too many attempts, please wait a minute"
+  },
+  "landing": {
+    "pageTitle": "Polla Mundialista — World Cup Predictions",
+    "hero": {
+      "tagline": "Guess the scores. Climb the table. Win.",
+      "cta": "Get started",
+      "login": "Log in",
+      "options": {
+        "ariaLabel": "Explore features",
+        "predict": "Predict",
+        "leaderboard": "Leaderboard",
+        "prizes": "Prizes"
+      }
+    },
+    "what": {
+      "eyebrow": "Free · For friends · No fuss",
+      "heading": "What's it about?",
+      "desc": "Guess the score of each match, earn points, and compete with your group. The best predictor wins the prize.",
+      "card1Title": "Guess",
+      "card1Desc": "Pick the exact score for each match before it starts.",
+      "card2Title": "Earn points",
+      "card2Desc": "3 pts exact score · 1 pt correct outcome · 0 pts miss.",
+      "card3Title": "Climb the table",
+      "card3Desc": "Check the live leaderboard and chase down your rivals.",
+      "card4Title": "Win",
+      "card4Desc": "Top finishers take home surprise prizes at tournament's end."
+    },
+    "howItWorks": {
+      "heading": "How it works",
+      "step1Num": "01",
+      "step1Title": "Create an account",
+      "step1Desc": "Sign up in seconds with your email address. It's free.",
+      "step2Num": "02",
+      "step2Title": "Predict the scores",
+      "step2Desc": "Enter your forecast before kick-off for each match.",
+      "step3Num": "03",
+      "step3Title": "Climb the table",
+      "step3Desc": "Follow the live rankings and compete for the top spots."
+    },
+    "prizes": {
+      "heading": "Prizes",
+      "sub": "The best predictors take home recognition… and something extra.",
+      "firstTitle": "1st place",
+      "firstDesc": "Eternal glory and a surprise prize for the champion.",
+      "secondTitle": "2nd place",
+      "secondDesc": "Finalist pride and a surprise worth celebrating.",
+      "thirdTitle": "3rd place",
+      "thirdDesc": "Coffee for the champion and an unexpected treat.",
+      "note": "Prizes are a complete surprise. Join to find out!"
+    },
+    "footerCta": {
+      "heading": "Ready to compete?",
+      "sub": "Join now and prove your predictions are the best in the group.",
+      "btn": "Create account",
+      "loginLink": "Already have an account? Sign in"
+    }
   },
   "matches": {
     "title": "My Predictions",

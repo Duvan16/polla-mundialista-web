@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" aria-hidden="true">
+  <!-- Football pitch center circle pattern — low contrast, repeatable -->
+  <defs>
+    <pattern id="pitchPattern" x="0" y="0" width="200" height="200" patternUnits="userSpaceOnUse">
+      <!-- Center circle -->
+      <circle cx="100" cy="100" r="46" fill="none" stroke="currentColor" stroke-width="1" opacity=".18"/>
+      <!-- Center spot -->
+      <circle cx="100" cy="100" r="2.5" fill="currentColor" opacity=".18"/>
+      <!-- Midfield line -->
+      <line x1="0" y1="100" x2="200" y2="100" stroke="currentColor" stroke-width=".8" opacity=".12"/>
+      <!-- Outer boundary hints -->
+      <rect x="8" y="8" width="184" height="184" fill="none" stroke="currentColor" stroke-width=".8" opacity=".1"/>
+      <!-- Corner arcs -->
+      <path d="M 8,8 Q 20,8 20,20"   fill="none" stroke="currentColor" stroke-width=".8" opacity=".1"/>
+      <path d="M 192,8 Q 180,8 180,20"  fill="none" stroke="currentColor" stroke-width=".8" opacity=".1"/>
+      <path d="M 8,192 Q 8,180 20,180"  fill="none" stroke="currentColor" stroke-width=".8" opacity=".1"/>
+      <path d="M 192,192 Q 192,180 180,180" fill="none" stroke="currentColor" stroke-width=".8" opacity=".1"/>
+      <!-- Penalty spots -->
+      <circle cx="100" cy="44" r="1.5" fill="currentColor" opacity=".12"/>
+      <circle cx="100" cy="156" r="1.5" fill="currentColor" opacity=".12"/>
+    </pattern>
+  </defs>
+  <rect width="200" height="200" fill="url(#pitchPattern)"/>
+</svg>

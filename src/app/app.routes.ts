@@ -1,12 +1,17 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/auth/auth.guard';
 import { adminGuard } from './core/auth/admin.guard';
+import { LandingPageComponent } from './features/landing/landing-page/landing-page.component';
 
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: 'matches',
+    redirectTo: 'landing',
     pathMatch: 'full',
+  },
+  {
+    path: 'landing',
+    component: LandingPageComponent,
   },
   {
     path: 'auth',
@@ -35,6 +40,6 @@ export const routes: Routes = [
   },
   {
     path: '**',
-    redirectTo: 'matches',
+    redirectTo: 'landing',
   },
 ];

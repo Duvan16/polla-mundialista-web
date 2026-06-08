@@ -1,0 +1,53 @@
+// ═══════════════════════════════════════════════════════════════
+//  Global Cup Pool — Custom Angular Material M2 Theme
+//  Primary: Deep Tournament Navy  |  Accent: Warm Gold
+// ═══════════════════════════════════════════════════════════════
+@use '@angular/material' as mat;
+
+@include mat.core();
+
+// ─── Deep Tournament Navy ───────────────────────────────────────
+$_navy: (
+  50:  #e3e9f4, 100: #bac9e2, 200: #8ca7cf, 300: #5d85bb,
+  400: #3b6aab, 500: #174e9b, 600: #134793, 700: #0f3d88,
+  800: #0b347e, 900: #0d2b5e,
+  A100: #7da8ff, A200: #4a84ff, A400: #1760ff, A700: #004ffc,
+  contrast: (
+    50: rgba(black,.87), 100: rgba(black,.87), 200: rgba(black,.87),
+    300: white, 400: white, 500: white, 600: white,
+    700: white,  800: white,  900: white,
+    A100: rgba(black,.87), A200: white, A400: white, A700: white,
+  )
+);
+
+// ─── Warm Gold ─────────────────────────────────────────────────
+$_gold: (
+  50:  #fff8e7, 100: #ffedc3, 200: #ffe29c, 300: #ffd775,
+  400: #ffce57, 500: #f5a623, 600: #e89a1e, 700: #d48c17,
+  800: #bf7e10, 900: #a56600,
+  A100: #ffe57f, A200: #ffd740, A400: #ffc400, A700: #e5a500,
+  contrast: (
+    50:  rgba(black,.87), 100: rgba(black,.87), 200: rgba(black,.87),
+    300: rgba(black,.87), 400: rgba(black,.87), 500: rgba(black,.87),
+    600: rgba(black,.87), 700: rgba(black,.87), 800: rgba(black,.87),
+    900: rgba(black,.87),
+    A100: rgba(black,.87), A200: rgba(black,.87),
+    A400: rgba(black,.87), A700: rgba(black,.87),
+  )
+);
+
+$primary: mat.define-palette($_navy, 900);
+$accent:  mat.define-palette($_gold, 500, 300, 700);
+$warn:    mat.define-palette(mat.$red-palette, 700);
+
+$_typo: mat.define-typography-config(
+  $font-family: '"Inter", Roboto, "Helvetica Neue", sans-serif'
+);
+
+$light-theme: mat.define-light-theme((
+  color:      (primary: $primary, accent: $accent, warn: $warn),
+  typography: $_typo,
+  density:    0,
+));
+
+@include mat.all-component-themes($light-theme);

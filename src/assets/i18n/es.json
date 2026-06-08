@@ -21,22 +21,26 @@
   },
   "auth": {
     "login": {
-      "title": "Iniciar sesión",
-      "subtitle": "Polla Mundialista",
+      "pageTitle": "Iniciar sesión · Polla Mundialista",
+      "title": "Bienvenido de vuelta",
+      "subtitle": "Introduce tus datos para continuar",
       "emailLabel": "Correo electrónico",
       "passwordLabel": "Contraseña",
       "submitBtn": "Iniciar sesión",
       "registerLink": "¿No tienes cuenta? Regístrate",
+      "backToHome": "← Volver al inicio",
       "errorFallback": "Error al iniciar sesión. Inténtalo de nuevo."
     },
     "register": {
-      "title": "Crear cuenta",
-      "subtitle": "Polla Mundialista",
+      "pageTitle": "Crear cuenta · Polla Mundialista",
+      "title": "Únete al grupo",
+      "subtitle": "Crea tu cuenta para empezar a predecir",
       "displayNameLabel": "Nombre de usuario",
       "emailLabel": "Correo electrónico",
       "passwordLabel": "Contraseña",
       "submitBtn": "Registrarse",
       "loginLink": "¿Ya tienes cuenta? Inicia sesión",
+      "backToHome": "← Volver al inicio",
       "errorFallback": "Error al registrarse. Inténtalo de nuevo."
     },
     "validation": {
@@ -47,6 +51,62 @@
       "displayNameRequired": "El nombre de usuario es obligatorio"
     },
     "rateLimit": "Demasiados intentos, espera un momento"
+  },
+  "landing": {
+    "pageTitle": "Polla Mundialista — Pronósticos del Mundial",
+    "hero": {
+      "tagline": "Adivina el marcador. Sube en la tabla. Gana.",
+      "cta": "Empezar ahora",
+      "login": "Iniciar sesión",
+      "options": {
+        "ariaLabel": "Explora las opciones",
+        "predict": "Predice",
+        "leaderboard": "Tabla",
+        "prizes": "Premios"
+      }
+    },
+    "what": {
+      "eyebrow": "Gratis · Para amigos · Sin complicaciones",
+      "heading": "¿De qué se trata?",
+      "desc": "Adivina el marcador de cada partido, suma puntos y compite con tu grupo. El que más acierte se lleva el premio.",
+      "card1Title": "Adivina",
+      "card1Desc": "Elige el resultado exacto de cada partido antes de que empiece.",
+      "card2Title": "Suma puntos",
+      "card2Desc": "3 pts por resultado exacto · 1 pt por acertar el ganador · 0 pts por fallo.",
+      "card3Title": "Sube en la tabla",
+      "card3Desc": "Mira la clasificación en vivo y supera a tus rivales.",
+      "card4Title": "Gana",
+      "card4Desc": "Los primeros puestos se llevan premios sorpresa al final del torneo."
+    },
+    "howItWorks": {
+      "heading": "¿Cómo funciona?",
+      "step1Num": "01",
+      "step1Title": "Regístrate",
+      "step1Desc": "Crea tu cuenta en segundos con tu correo electrónico. Es gratis.",
+      "step2Num": "02",
+      "step2Title": "Adivina el marcador",
+      "step2Desc": "Elige el resultado de cada partido antes de que empiece.",
+      "step3Num": "03",
+      "step3Title": "Sube en la tabla",
+      "step3Desc": "Sigue la clasificación en vivo y compite por los primeros puestos."
+    },
+    "prizes": {
+      "heading": "Premios",
+      "sub": "Los mejores clasificados se llevan el reconocimiento… y algo más.",
+      "firstTitle": "1.er lugar",
+      "firstDesc": "Gloria eterna y un premio sorpresa para el campeón.",
+      "secondTitle": "2.° lugar",
+      "secondDesc": "Orgullo de finalista y una sorpresa que vale la pena.",
+      "thirdTitle": "3.er lugar",
+      "thirdDesc": "Café para el campeón y un detalle que no esperabas.",
+      "note": "Los premios son una sorpresa total. ¡Participa para descubrirlos!"
+    },
+    "footerCta": {
+      "heading": "¿Listo para competir?",
+      "sub": "Únete ahora y demuestra que tus pronósticos son los mejores del grupo.",
+      "btn": "Crear cuenta",
+      "loginLink": "¿Ya tienes cuenta? Inicia sesión"
+    }
   },
   "matches": {
     "title": "Mis predicciones",
