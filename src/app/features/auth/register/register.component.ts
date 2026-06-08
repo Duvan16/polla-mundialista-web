@@ -1,5 +1,5 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
-import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { ReactiveFormsModule, FormBuilder, Validators, AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { Title } from '@angular/platform-browser';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -8,10 +8,23 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { AuthService } from '../../../core/auth/auth.service';
 import { LanguageService, AppLang } from '../../../core/services/language.service';
 import { extractApiError } from '../../../core/utils/api-error';
+
+function strongPasswordValidator(): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    const v: string = control.value ?? '';
+    const errors: ValidationErrors = {};
+    if (v.length < 8)            errors['passwordMinLength'] = true;
+    if (!/[A-Z]/.test(v))        errors['passwordUppercase'] = true;
+    if (!/[a-z]/.test(v))        errors['passwordLowercase'] = true;
+    if (!/[0-9]/.test(v))        errors['passwordDigit']     = true;
+    if (!/[^A-Za-z0-9]/.test(v)) errors['passwordSpecial']   = true;
+    return Object.keys(errors).length ? errors : null;
+  };
+}
 
 @Component({
   selector: 'app-register',
@@ -109,13 +122,19 @@ import { extractApiError } from '../../../core/utils/api-error';
               </button>
               @if (form.get('password')?.hasError('required')) {
                 <mat-error>{{ 'auth.validation.passwordRequired' | translate }}</mat-error>
-              } @else if (form.get('password')?.hasError('minlength')) {
-                <mat-error>{{ 'auth.validation.passwordMinLength' | translate }}</mat-error>
-              }
-              @if (!form.get('password')?.hasError('required')) {
-                <mat-hint>{{ 'auth.validation.passwordHint' | translate }}</mat-hint>
               }
             </mat-form-field>
+
+            @if (showPasswordRules()) {
+              <ul class="pwd-rules" aria-label="Password requirements">
+                @for (rule of passwordRules(); track rule.key) {
+                  <li class="pwd-rule" [class.pwd-rule--ok]="rule.ok" [class.pwd-rule--err]="!rule.ok && passwordTouched()">
+                    <mat-icon class="pwd-rule-icon">{{ rule.ok ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+                    {{ rule.label | translate }}
+                  </li>
+                }
+              </ul>
+            }
 
             @if (error()) {
               <p class="error-message" role="alert">
@@ -400,6 +419,37 @@ import { extractApiError } from '../../../core/utils/api-error';
 
     .switch-link:hover { color: #FFB83F; text-decoration: underline; }
 
+    .pwd-rules {
+      list-style: none;
+      margin: -2px 0 12px;
+      padding: 10px 14px;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .pwd-rule {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: .8rem;
+      color: rgba(255,255,255,.4);
+      transition: color .18s ease;
+    }
+
+    .pwd-rule--ok { color: #4caf82; }
+    .pwd-rule--err { color: #ff6b6b; }
+
+    .pwd-rule-icon {
+      font-size: 15px !important;
+      width: 15px !important;
+      height: 15px !important;
+      flex-shrink: 0;
+    }
+
     @keyframes authFadeUp {
       from { opacity: 0; transform: translateY(16px); }
       to   { opacity: 1; transform: translateY(0); }
@@ -440,7 +490,29 @@ export class RegisterComponent implements OnInit {
   form = this.fb.nonNullable.group({
     displayName: ['', Validators.required],
     email:       ['', [Validators.required, Validators.email]],
-    password:    ['', [Validators.required, Validators.minLength(6)]],
+    password:    ['', [Validators.required, strongPasswordValidator()]],
+  });
+
+  readonly passwordTouched = signal(false);
+
+  private readonly passwordValue = toSignal(
+    this.form.get('password')!.valueChanges,
+    { initialValue: '' }
+  );
+
+  readonly showPasswordRules = computed(() =>
+    (this.passwordValue()?.length ?? 0) > 0 || this.passwordTouched()
+  );
+
+  readonly passwordRules = computed(() => {
+    const v = this.passwordValue() ?? '';
+    return [
+      { key: 'min',     ok: v.length >= 8,              label: 'auth.validation.passwordMinLength' },
+      { key: 'upper',   ok: /[A-Z]/.test(v),            label: 'auth.validation.passwordUppercase' },
+      { key: 'lower',   ok: /[a-z]/.test(v),            label: 'auth.validation.passwordLowercase' },
+      { key: 'digit',   ok: /[0-9]/.test(v),            label: 'auth.validation.passwordDigit' },
+      { key: 'special', ok: /[^A-Za-z0-9]/.test(v),    label: 'auth.validation.passwordSpecial' },
+    ];
   });
 
   constructor() {
@@ -459,6 +531,7 @@ export class RegisterComponent implements OnInit {
 
   submit(): void {
     this.form.markAllAsTouched();
+    this.passwordTouched.set(true);
     if (this.form.invalid) return;
     this.loading.set(true);
     this.error.set(null);

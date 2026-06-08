@@ -51,8 +51,12 @@
       "emailRequired": "Email is required",
       "emailInvalid": "Enter a valid email address",
       "passwordRequired": "Password is required",
-      "passwordMinLength": "Password must be at least 6 characters",
-      "passwordHint": "Minimum 6 characters",
+      "passwordMinLength": "At least 8 characters",
+      "passwordUppercase": "At least one uppercase letter",
+      "passwordLowercase": "At least one lowercase letter",
+      "passwordDigit": "At least one number",
+      "passwordSpecial": "At least one special character (!@#$…)",
+      "passwordHint": "Must be strong: 8+ chars, upper, lower, number & symbol",
       "displayNameRequired": "Display name is required"
     },
     "rateLimit": "Too many attempts, please wait a minute"
