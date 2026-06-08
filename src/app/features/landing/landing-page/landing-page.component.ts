@@ -318,18 +318,32 @@ import { LanguageService, AppLang } from '../../../core/services/language.servic
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      background: #071A3D;
+      background-color: #071A3D;
       background-image:
-        repeating-linear-gradient(
-          0deg,
-          rgba(255,255,255,.025) 0px, rgba(255,255,255,.025) 1px,
-          transparent 1px, transparent 64px
+        /* Left-corner floodlight beams */
+        conic-gradient(
+          from 295deg at -6% 112%,
+          transparent 0deg,
+          rgba(255,255,255,.055) 7deg, transparent 12deg,
+          rgba(255,255,255,.04)  18deg, transparent 23deg,
+          rgba(255,255,255,.055) 29deg, transparent 34deg,
+          rgba(255,255,255,.035) 40deg, transparent 45deg,
+          rgba(255,255,255,.025) 51deg, transparent 56deg,
+          transparent 360deg
         ),
-        repeating-linear-gradient(
-          90deg,
-          rgba(255,255,255,.015) 0px, rgba(255,255,255,.015) 1px,
-          transparent 1px, transparent 128px
-        );
+        /* Right-corner floodlight beams */
+        conic-gradient(
+          from 233deg at 106% 112%,
+          transparent 0deg,
+          rgba(255,255,255,.045) 7deg, transparent 12deg,
+          rgba(255,255,255,.035) 18deg, transparent 23deg,
+          rgba(255,255,255,.05)  29deg, transparent 34deg,
+          rgba(255,255,255,.03)  40deg, transparent 45deg,
+          rgba(255,255,255,.022) 51deg, transparent 56deg,
+          transparent 360deg
+        ),
+        /* Subtle center-bottom radial glow */
+        radial-gradient(ellipse 90% 55% at 50% 105%, rgba(13,43,94,.7) 0%, transparent 65%);
       color: #fff;
     }
 
