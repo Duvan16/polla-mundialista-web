@@ -320,30 +320,11 @@ import { LanguageService, AppLang } from '../../../core/services/language.servic
       flex-direction: column;
       background-color: #071A3D;
       background-image:
-        /* Left-corner floodlight beams */
-        conic-gradient(
-          from 295deg at -6% 112%,
-          transparent 0deg,
-          rgba(255,255,255,.055) 7deg, transparent 12deg,
-          rgba(255,255,255,.04)  18deg, transparent 23deg,
-          rgba(255,255,255,.055) 29deg, transparent 34deg,
-          rgba(255,255,255,.035) 40deg, transparent 45deg,
-          rgba(255,255,255,.025) 51deg, transparent 56deg,
-          transparent 360deg
-        ),
-        /* Right-corner floodlight beams */
-        conic-gradient(
-          from 233deg at 106% 112%,
-          transparent 0deg,
-          rgba(255,255,255,.045) 7deg, transparent 12deg,
-          rgba(255,255,255,.035) 18deg, transparent 23deg,
-          rgba(255,255,255,.05)  29deg, transparent 34deg,
-          rgba(255,255,255,.03)  40deg, transparent 45deg,
-          rgba(255,255,255,.022) 51deg, transparent 56deg,
-          transparent 360deg
-        ),
-        /* Subtle center-bottom radial glow */
-        radial-gradient(ellipse 90% 55% at 50% 105%, rgba(13,43,94,.7) 0%, transparent 65%);
+        /* Dark overlay so text stays readable */
+        linear-gradient(to bottom, rgba(7,26,61,.55) 0%, rgba(7,26,61,.35) 50%, rgba(7,26,61,.72) 100%),
+        url('/assets/hero-banner.png');
+      background-size: cover;
+      background-position: center;
       color: #fff;
     }
 
